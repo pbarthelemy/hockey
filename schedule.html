@@ -1,0 +1,501 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="shortcut icon" href="assets/landing_pages/images/favicon.png" type="image/x-icon">
+    <title>Ice Hockey Score Sheet</title>
+    <!-- Stylesheet -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css">
+    <link rel="stylesheet" href="assets/landing_pages/css/style.css?v=1.0.2">
+    <link rel="stylesheet" href="assets/landing_pages/css/responsive.css?v=1.0.2">
+    <!-- FontAwesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/flag-icon-css/3.5.0/css/flag-icon.min.css">
+    <!-- Google analytics -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-QQ1YRY8RZ0"></script>
+<script>
+    window.dataLayer = window.dataLayer || [];
+
+    function gtag() {
+        dataLayer.push(arguments);
+    }
+    gtag('js', new Date());
+    gtag('config', 'G-QQ1YRY8RZ0', {
+        'cookie_flags': 'SameSite=None; Secure'
+    });
+</script>    <style>
+        .bg-in-progress {
+            background: #CCECFF;
+            opacity: 0.9;
+            color: black;
+        }
+
+        .bg-modified {
+            background-color: #ffff0030;
+            color: black;
+        }
+
+        .bg-completed {
+            background-color: #EAEAEA;
+            color: black;
+        }
+
+        .bg-forfeit {
+            background-color: #FFB3BD;
+            color: black;
+        }
+
+        .custome-left-side-border {
+            border-left: 1px solid gray;
+            margin-left: 5px;
+            padding-left: 5px
+        }
+
+        @media screen and (max-width:430px) {
+            .custom-h6 {
+                font-size: 0.7rem;
+            }
+
+            .custome-left-side-border {
+                border-left: 0px !important;
+            }
+        }
+    </style>
+</head>
+
+<body style="background-color: white;">
+       <!-- header -->
+   <header id="custom-header">
+       <!--Navbar -->
+       <nav>
+
+           <div class="logo">
+               <img src="assets/landing_pages/images/Logo.png" alt="Logo Image">
+           </div>
+
+           <ul class="nav-list" style="margin-top: 0; margin-bottom: 0; padding-left: 0;">
+               <li>
+                   <a href="home.php">Home</a>
+               </li>
+               <li>
+                   <a href="https://hockeylsl.atlassian.net/wiki/spaces/SD/pages/142147596/scoresheets.ca+-+Guide+de+l+utilisateur+User+Guide">Documentation</a>
+               </li>
+               <!-- <li>
+                   <a href="game-sheets.php">Game Sheets</a>
+               </li> -->
+               <!-- <li>
+                   <a href="standings.php">Standings</a>
+               </li> -->
+               <li>
+                   <a href="tournament.php" class="active text-nowrap">League / Standings</a>
+               </li>
+               <li>
+                   <a href="home.php?#features">Features</a>
+               </li>
+               <li>
+                   <a href="home.php?#contact"> Contact</a>
+               </li>
+           </ul>
+
+           <div class="nav-links">
+
+               <div id="language-selector">
+                   <label class="active">
+                       <input type="radio" name="language" value="english" hidden> <span
+                           class="">EN</span>
+                   </label>
+                   <label class="">
+                       <input type="radio" name="language" value="french" hidden> <span
+                           class="">FR</span>
+                   </label>
+               </div>
+               <a href="signin.php" style="white-space: nowrap;" class="loginBtn">
+                   <i class="fa-solid fa-arrow-right-to-bracket"></i>
+                   <span>Login</span>
+               </a>
+               <a href="associations-index.php" class="btn btn-sm btn-primary">
+                   Schedules               </a>
+               <i class="fa-solid fa-bars-staggered menuIcon" id="navbar-btn"></i>
+           </div>
+       </nav>
+       <!-- Sidebar -->
+       <aside id="sidebar" style=" overflow-y: scroll;">
+           <i class="fa-regular fa-circle-xmark"></i>
+           <div class="logo"></div>
+           <div class="divider"></div>
+           <ul>
+               <li>
+                   <i class="fa-solid fa-home"></i>
+                   <a href="home.php">Home</a>
+               </li>
+               <li>
+                   <i class="fa-solid fa-desktop"></i>
+                   <a href="https://hockeylsl.atlassian.net/wiki/spaces/SD/pages/142147596/scoresheets.ca+-+Guide+de+l+utilisateur+User+Guide"
+                       target="_blank">Documentation</a>
+               </li>
+               <!-- <li>
+                   <a href="game-sheets.php">Game Sheets</a>
+               </li> -->
+               <!-- <li>
+                   <a href="standings.php">Standings</a>
+               </li> -->
+               <li>
+                   <a href="tournament.php">Playoffs / League</a>
+               </li>
+               <li>
+                   <i class="fa-solid fa-feather"></i>
+                   <a href="home.php#features">Features</a>
+               </li>
+               <li>
+                   <i class="fa-solid fa-phone"></i>
+                   <a href="home.php#contact">Contact</a>
+               </li>
+           </ul>
+       </aside>
+   </header>    <!-- Main -->
+    <main>
+        <input type="hidden" id="tournamentId" value="17" />
+        <input type="hidden" id="divisionId" value="45" />
+        <input type="hidden" id="levelId" value="6" />
+        <input type="hidden" id="filterBy" value="division-level" />
+        <div class="container" style="margin-top: 100px !important;">
+            <div class="d-flex justify-content-between align-items-center">
+                <h1 class="bd-title mb-0" id="content">Schedules</h1>
+                <div>
+                    <a href="tournament.php?id=17" class="btn btn-sm fw-bold btn-secondary">Back</a>
+                    <button id="export-pdf-btn" class="btn btn-primary btn-sm" onclick="exportGameListToPDF();">Export</button>
+                </div>
+            </div>
+            <div class="row my-1">
+                <div class="col-auto">
+                    <div class="btn-group btn-group-sm" role="group" aria-label="Basic outlined example">
+                                                <a href="tournament-standings.php?tournamentId=17&tournamentName=E.H.L.&divisionId=45&divisionName=Moins de 15 ans&levelId=6&levelName=B" class="btn btn-outline-danger btn-sm  ">Standings</a>
+                        <a href="tournament-suspension.php?tournamentId=17&tournamentName=E.H.L.&divisionId=45&divisionName=Moins de 15 ans&levelId=6&levelName=B" class="btn btn-outline-danger btn-sm">Suspensions</a>
+                        <a href="tournament-player-stats.php?tournamentId=17&tournamentName=E.H.L.&divisionId=45&divisionName=Moins de 15 ans&levelId=6&levelName=B" class="btn btn-outline-danger btn-sm  ">Player Stats</a>
+
+                    </div>
+                </div>
+            </div>
+            <div class="card my-3">
+                <div class="card-header">
+                    <div class="row">
+                        <div class="col-md-6" style="max-height: 70px;">
+                            <div class="form-group">
+                                <label for="">Search</label>
+                                <input id="game-number-search-inp" placeholder="Search" type="text" class="form-control form-control-sm">
+                            </div>
+                        </div>
+                        <div class="col-md-6" style="max-height: 70px;">
+                            <div class="form-group">
+                                <label for="">sorting</label>
+                                <!--begin::Input group-->
+                                <div class="input-group input-group-sm mb-5">
+                                    <select id="sorting-column-combo" class="form-select" aria-label="Sizing example input" aria-describedby="inputGroup-sizing-sm">
+                                        <option value="date">Date</option>
+                                        <option value="gameNumber">Game number</option>
+                                    </select>
+                                    <select id="sorting-order-combo" class="input-group-text" id="inputGroup-sizing-sm">
+                                        <option value="asc">ASC</option>
+                                        <option value="desc">DESC</option>
+                                    </select>
+                                </div>
+                                <!--end::Input group-->
+                            </div>
+
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="btn-group btn-group-sm d-block d-md-inline-flex" role="group" aria-label="Basic radio toggle button group">
+
+                            <input type="radio" class="btn-check my-1" name="filter_btn" id="filter_btn_complete" value="complete" autocomplete="off">
+                            <label class="btn btn-secondary my-1" for="filter_btn_complete">Complete</label>
+
+                            <input type="radio" class="btn-check my-1" name="filter_btn" id="filter_btn_waiting_reschedule" value="waiting_reschedule" autocomplete="off">
+                            <label class="btn btn-secondary my-1" for="filter_btn_waiting_reschedule">Waiting Reschedule (TBD)</label>
+
+                            <input type="radio" class="btn-check my-1" name="filter_btn" id="filter_btn_past_30_days" value="past_30_days" autocomplete="off">
+                            <label class="btn btn-secondary my-1" for="filter_btn_past_30_days">Past 30 Days</label>
+
+                            <input type="radio" class="btn-check my-1" name="filter_btn" id="filter_btn_past_7_days" value="past_7_days" autocomplete="off">
+                            <label class="btn btn-secondary my-1" for="filter_btn_past_7_days">Past 7 Days</label>
+
+                            <input type="radio" class="btn-check my-1" name="filter_btn" id="filter_btn_yesterday" value="yesterday" autocomplete="off">
+                            <label class="btn btn-secondary my-1" for="filter_btn_yesterday">Yesterday</label>
+
+                            <input type="radio" class="btn-check my-1" name="filter_btn" id="filter_btn_today" value="today" autocomplete="off" checked>
+                            <label class="btn btn-secondary my-1" for="filter_btn_today">Today</label>
+
+                            <input type="radio" class="btn-check my-1" name="filter_btn" id="filter_btn_next_7_days" value="next_7_days" autocomplete="off">
+                            <label class="btn btn-secondary my-1" for="filter_btn_next_7_days">Next 7 Days</label>
+
+                            <input type="radio" class="btn-check my-1" name="filter_btn" id="filter_btn_next_30_days" value="next_30_days" autocomplete="off">
+                            <label class="btn btn-secondary my-1" for="filter_btn_next_30_days">Next 30 Days</label>
+                        </div>
+
+                    </div>
+                    <div class="d-flex flex-column flex-sm-row justify-content-center py-2 text-center">
+                        <span class="badge my-1 mx-sm-2 bg-in-progress">Game in Progress</span>
+                        <span class="badge my-1 mx-sm-2 bg-modified">Game Modified</span>
+                        <span class="badge my-1 mx-sm-2 bg-completed">Game Completed</span>
+                        <span class="badge my-1 mx-sm-2 bg-forfeit">Forfeit</span>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <div id="tournament-game-list" class="p-3">
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- Footer -->
+        <footer>
+            <p>Copyright © 2024 Scoredsheet.Co,Ltd. All Rigts Reserved.</p>
+        </footer>
+    </main>
+    <script src="assets/landing_pages/js/jquery-3.6.0.min.js"></script>
+    <script src="assets/landing_pages/js/main.js?v=1.2.86"> </script>
+    <script>
+        const language_code = "english";
+    </script>
+    <script src="assets/js/custom/label.js?v=1.2.86"></script>
+    <script>
+        let firstLoad = "yes";
+        $(document).ready(function() {
+            getGames();
+        });
+        $(document).on("change", "#sorting-order-combo, #sorting-column-combo", function() {
+            getGames();
+        });
+
+        let typingTimer; // Timer identifier
+        const typingDelay = 500; // Delay in milliseconds
+
+        $(document).on("keyup", "#game-number-search-inp", function() {
+            clearTimeout(typingTimer); // Clear the timer if the user is still typing
+            typingTimer = setTimeout(getGames, typingDelay); // Call `getGames` after the delay
+        });
+
+        $(document).on("keydown", "#game-number-search-inp", function() {
+            clearTimeout(typingTimer); // Clear the timer if a new key is pressed
+        });
+
+        function prepareGameListHTML(gameList) {
+            let htmlData = "";
+            let sortingColumn = $("#sorting-column-combo").val();
+            let currentDate = "";
+            gameList.forEach(game => {
+                let bgColor = "";
+                if (game.status == "In Progress") {
+                    bgColor = "bg-in-progress";
+                }
+                if (game.status == "Completed") {
+                    bgColor = "bg-completed";
+                }
+                if (game.status == "Forfeit") {
+                    bgColor = "bg-forfeit";
+                }
+                if (sortingColumn == "date") {
+                    if (game.game_date != currentDate) {
+                        htmlData += getDateTitle(game.game_date);
+                    }
+                }
+                if (game.edit_flag == "1" && game.status == "Initialized") {
+                    bgColor = "bg-modified";
+                }
+
+                let game_stage = game["game_stage_name_" + language_code];
+                game_stage = (game_stage !== "") ? " - " + game_stage : "";
+                htmlData += `<div class="list-group mb-2">
+                    <div  class=" ${bgColor} list-group-item list-group-item-action flex-column align-items-start p-3">
+                        <div class="row g-3">
+                            <div class="col-12 col-md-4">
+                                <h3>#${game.gameNumber}${game_stage}</h3>
+                                <h6 class="custom-h6">${game.divisionName + " - " + game.levelName}</h6>
+                                <a class="btn btn-outline-danger btn-sm text-nowrap" target="_blank"
+                                    href="tournament-game-scoresheet.php?gameId=${game.gameId}">${js_label("game_sheet")}</a>
+                            </div>
+                            <div class="col-12 col-md-4">
+                                <h6 class="custom-h6 text-nowrap">${game.game_date} - ${game.startTime}</h6>
+                                <div class="d-flex d-row">
+                                    <div class="col">
+                                    <h6 class="text-nowrap custom-h6">
+                                       <a href="tournament-team-schedules.php?teamId=${game.awayTeamID}&divisionId=${game.divisionID}&levelId=${game.levelID}"> ${game.awayTeamName}</a>
+                                    </h6>
+                                    <h6 class="text-nowrap custom-h6">
+                                       <a href="tournament-team-schedules.php?teamId=${game.homeTeamID}&divisionId=${game.divisionID}&levelId=${game.levelID}"> ${game.homeTeamName}</a>
+                                    </h6>
+                                    </div>
+                                    <div class="custome-left-side-border">
+                                          <h6 class="text-nowrap custom-h6">${game.awayTotalGoals} ${game.awayFranJeu}</h6>
+                                         <h6 class="text-nowrap custom-h6">${game.homeTotalGoals} ${game.homeFranJeu}</h6>
+                                    </div>
+                                    <div class="d-flex justify-content-center align-items-center" style="border-left:1px solid gray;margin-left:5px;padding-left:5px">
+                                        ${(game.info_lbl!="-")?js_label(game.info_lbl):'-'}
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-12 col-md-4 text-md-end">
+                                <a target="_blank" href="${game.google_map_link}" >${game.locationName}</a>
+                                <p class="p-1 m-1">${game.address1}</p>
+                                <p class="p-1 m-1">${game.complete_address}</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>`;
+                currentDate = game.game_date;
+            });
+            return htmlData;
+        }
+
+        function exportGameListToPDF() {
+            let tournamentId = $("#tournamentId").val();
+            let filterBy = $("#filterBy").val();
+            let filterRange = $('input[name="filter_btn"]:checked').val();
+            let divisionId = $("#divisionId").val();
+            let levelId = $("#levelId").val();
+            let sortingColumn = $("#sorting-column-combo").val();
+            let sortingOrder = $("#sorting-order-combo").val();
+            let searchInp = $("#game-number-search-inp").val();
+
+            $.ajax({
+                url: "classes/TournamentPublicData.php",
+                type: "POST",
+                data: {
+                    filterBy,
+                    filterRange,
+                    exportTournamentGameListToPDF: "TournamentPublicData",
+                    divisionId,
+                    tournamentId,
+                    levelId,
+                    sortingColumn,
+                    sortingOrder,
+                    searchInp
+                },
+                xhrFields: {
+                    responseType: "blob",
+                },
+                beforeSend: function() {
+                    $("#export-pdf-btn").attr("disabled", true);
+                    $("#export-pdf-btn").html(js_label("exporting") + "...");
+                },
+                success: function(blob) {
+                    let link = document.createElement("a");
+                    let url = window.URL.createObjectURL(blob);
+                    link.href = url;
+                    link.download = "tournament_game_list.pdf";
+                    link.click();
+                    window.URL.revokeObjectURL(url); // Cleanup
+                },
+                error: function(xhr, status, error) {
+                    console.error("Error exporting data to pdf:", error);
+                },
+                complete: function() {
+                    $("#export-pdf-btn").attr("disabled", false);
+                    $("#export-pdf-btn").html(js_label("export"));
+                },
+            });
+        }
+
+        function getGames() {
+            let tournamentId = $("#tournamentId").val();
+            let filterBy = $("#filterBy").val();
+            let filterRange = $('input[name="filter_btn"]:checked').val();
+            let divisionId = $("#divisionId").val();
+            let levelId = $("#levelId").val();
+            let sortingColumn = $("#sorting-column-combo").val();
+            let sortingOrder = $("#sorting-order-combo").val();
+            let searchInp = $("#game-number-search-inp").val();
+            if (tournamentId == "" || divisionId == "" || levelId == "") {
+                return;
+            }
+            $.ajax({
+                method: "POST",
+                url: `classes/TournamentPublicData.php`,
+                data: {
+                    filterBy,
+                    filterRange,
+                    getTournamentGameList: "TournamentPublicData",
+                    divisionId,
+                    tournamentId,
+                    levelId,
+                    sortingColumn,
+                    sortingOrder,
+                    searchInp
+                },
+                dataType: "JSON",
+                beforeSend: function() {
+                    $("#tournament-game-list").html(`<p class="text-center text-italic" id="info-p">${js_label("getting_data")}...</p>`);
+                },
+                success: function(data) {
+                    if (data.resp) {
+                        $("#tournament-game-list").html(prepareGameListHTML(data.data));
+                    } else {
+
+                        $("#tournament-game-list").html(data.msg);
+                        $("#tournament-game-list").append(prepareGameListHTML(data.data));
+                        if (filterRange == "today" && data.data.length <= 0 && firstLoad == "yes") {
+                            firstLoad = "no";
+                            $("#filter_btn_complete").click();
+                        }
+
+                    }
+                },
+                complete: function() {
+                    $("#info-p").remove();
+                }
+            });
+        }
+        $("input[name='filter_btn']").on("change", function() {
+            getGames();
+        });
+
+        // Function to format the date
+        function getDateTitle(gameDate) {
+            console.log(gameDate, isInvalidGameDate(gameDate));
+            if (isInvalidGameDate(gameDate)) {
+                return `<p class="my-2" style="font-weight: bold;font-size: 20px;">${js_label("waiting_reschedule")}</p>`;
+            }
+            const months = {
+                english: ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"],
+                french: ["Janvier", "Février", "Mars", "Avril", "Mai", "Juin", "Juillet", "Août", "Septembre", "Octobre", "Novembre", "Décembre"]
+            };
+
+            const days = {
+                english: ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"],
+                french: ["Dimanche", "Lundi", "Mardi", "Mercredi", "Jeudi", "Vendredi", "Samedi"]
+            };
+            // Parse the date explicitly as local time
+            const [year, month, day] = gameDate.split("-");
+            const date = new Date(year, month - 1, day); // Months are 0-indexed in JavaScript
+
+            const dayName = days[language_code][date.getDay()];
+            const dayNum = date.getDate();
+            const monthName = months[language_code][date.getMonth()];
+            const yearNum = date.getFullYear();
+
+            let formattedDate;
+            if (language_code === 'english') {
+                formattedDate = `${dayName} ${monthName} ${dayNum}${getOrdinal(dayNum)}, ${yearNum}`;
+            } else if (language_code === 'french') {
+                formattedDate = `${dayName} ${dayNum} ${monthName}, ${yearNum}`;
+            }
+            return `<p class="my-2" style="font-weight: bold;font-size: 20px;">${formattedDate}</p>`;
+        }
+
+        function getOrdinal(n) {
+            if (n > 10 && n < 20) return 'th';
+            const lastDigit = n % 10;
+            if (lastDigit === 1) return 'st';
+            if (lastDigit === 2) return 'nd';
+            if (lastDigit === 3) return 'rd';
+            return 'th';
+        }
+
+        function isInvalidGameDate(date) {
+            return !date || date === "0000-00-00" || isNaN(new Date(date).getTime());
+        }
+    </script>
+</body>
+
+</html>

@@ -1,0 +1,374 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Game Predictions - E.H.L. Moins de 15 ans B</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            background-color: #f5f5f5;
+        }
+        h1 {
+            color: #333;
+        }
+        h2 {
+            color: #555;
+            margin-top: 30px;
+        }
+        table {
+            border-collapse: collapse;
+            background-color: white;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            margin-bottom: 30px;
+            width: 100%;
+        }
+        th, td {
+            border: 1px solid #ddd;
+            padding: 10px;
+            text-align: left;
+        }
+        th {
+            background-color: #2c3e50;
+            color: white;
+            font-weight: bold;
+        }
+        tbody tr:nth-child(odd) {
+            background-color: #f9f9f9;
+        }
+        tbody tr:nth-child(even) {
+            background-color: #ffffff;
+        }
+        .center {
+            text-align: center;
+        }
+        .right {
+            text-align: right;
+        }
+        .prob-high {
+            background-color: #2ecc71;
+            color: white;
+            font-weight: bold;
+            padding: 5px;
+            border-radius: 3px;
+        }
+        .prob-medium {
+            background-color: #f39c12;
+            color: white;
+            padding: 5px;
+            border-radius: 3px;
+        }
+        .prob-low {
+            background-color: #e74c3c;
+            color: white;
+            padding: 5px;
+            border-radius: 3px;
+        }
+        .outcome {
+            font-weight: bold;
+            color: #2c3e50;
+        }
+        .team-name {
+            font-weight: bold;
+        }
+        .rating-table {
+            margin-top: 20px;
+        }
+        .rating-table td {
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+    <h1>E.H.L. - Moins de 15 ans - B - Game Predictions</h1>
+    <p>Statistical predictions based on historical performance of all teams</p>
+    
+    <h2>Team Ratings</h2>
+    <table class="rating-table">
+        <thead>
+            <tr>
+                <th>Team</th>
+                <th class="center">Strength</th>
+                <th class="center">Offensive</th>
+                <th class="center">Defensive</th>
+                <th class="center">Win %</th>
+                <th class="center">Games Played</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td class="team-name">BULLDOGS VERDUN</td>
+                <td class="center">0.457</td>
+                <td class="center">0.480</td>
+                <td class="center">0.433</td>
+                <td class="center">14.3%</td>
+                <td class="center">21</td>
+            </tr>
+            <tr>
+                <td class="team-name">CANUCKS COTE-ST-LUC</td>
+                <td class="center">0.571</td>
+                <td class="center">0.511</td>
+                <td class="center">0.631</td>
+                <td class="center">15.9%</td>
+                <td class="center">22</td>
+            </tr>
+            <tr>
+                <td class="team-name">DEVILS M.R.O.</td>
+                <td class="center">1.858</td>
+                <td class="center">1.673</td>
+                <td class="center">2.043</td>
+                <td class="center">73.7%</td>
+                <td class="center">19</td>
+            </tr>
+            <tr>
+                <td class="team-name">DIABLES M.R.O.</td>
+                <td class="center">1.640</td>
+                <td class="center">1.273</td>
+                <td class="center">2.007</td>
+                <td class="center">71.4%</td>
+                <td class="center">21</td>
+            </tr>
+            <tr>
+                <td class="team-name">KNIGHTS M.W.H.</td>
+                <td class="center">0.907</td>
+                <td class="center">0.609</td>
+                <td class="center">1.204</td>
+                <td class="center">32.1%</td>
+                <td class="center">14</td>
+            </tr>
+            <tr>
+                <td class="team-name">MOHAWKS KAHNAWAKE</td>
+                <td class="center">0.156</td>
+                <td class="center">0.000</td>
+                <td class="center">0.313</td>
+                <td class="center">0.0%</td>
+                <td class="center">4</td>
+            </tr>
+            <tr>
+                <td class="team-name">PANTHERES LASALLE</td>
+                <td class="center">1.282</td>
+                <td class="center">1.015</td>
+                <td class="center">1.548</td>
+                <td class="center">64.3%</td>
+                <td class="center">21</td>
+            </tr>
+            <tr>
+                <td class="team-name">RAPIDES LACHINE</td>
+                <td class="center">1.057</td>
+                <td class="center">0.857</td>
+                <td class="center">1.257</td>
+                <td class="center">47.4%</td>
+                <td class="center">19</td>
+            </tr>
+            <tr>
+                <td class="team-name">WARRIORS ST-LAURENT</td>
+                <td class="center">2.664</td>
+                <td class="center">1.716</td>
+                <td class="center">3.612</td>
+                <td class="center">88.1%</td>
+                <td class="center">21</td>
+            </tr>
+        </tbody>
+    </table>
+    
+    <h2>Upcoming Games Predictions</h2>
+    <table>
+        <thead>
+            <tr>
+                <th>Game ID</th>
+                <th>Date</th>
+                <th>Location</th>
+                <th>Home Team</th>
+                <th>Away Team</th>
+                <th class="center">Home Win %</th>
+                <th class="center">Tie %</th>
+                <th class="center">Away Win %</th>
+                <th class="center">Expected Score</th>
+                <th class="center">Most Likely</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td>#4341</td>
+                <td>2026-02-15 11:00</td>
+                <td>DENIS-SAVARD</td>
+                <td class="team-name">BULLDOGS VERDUN</td>
+                <td class="team-name">PANTHERES LASALLE</td>
+                <td class="center"><span class="prob-high">72.6%</span></td>
+                <td class="center"><span class="prob-low">2.6%</span></td>
+                <td class="center"><span class="prob-low">24.8%</span></td>
+                <td class="center">2.01 - 1.14</td>
+                <td class="center outcome">HOME WIN<br>BULLDOGS VERDUN</td>
+            </tr>
+            <tr>
+                <td>#4375</td>
+                <td>2026-02-15 17:30</td>
+                <td>RAYMOND BOURQUE 1</td>
+                <td class="team-name">WARRIORS ST-LAURENT</td>
+                <td class="team-name">RAPIDES LACHINE</td>
+                <td class="center"><span class="prob-low">8.5%</span></td>
+                <td class="center"><span class="prob-low">0.0%</span></td>
+                <td class="center"><span class="prob-high">91.5%</span></td>
+                <td class="center">5.85 - 7.99</td>
+                <td class="center outcome">AWAY WIN<br>RAPIDES LACHINE</td>
+            </tr>
+            <tr>
+                <td>#4359</td>
+                <td>2026-02-15 19:00</td>
+                <td>VILLE MONT-ROYAL</td>
+                <td class="team-name">DIABLES M.R.O.</td>
+                <td class="team-name">DEVILS M.R.O.</td>
+                <td class="center"><span class="prob-low">14.3%</span></td>
+                <td class="center"><span class="prob-low">0.1%</span></td>
+                <td class="center"><span class="prob-high">85.7%</span></td>
+                <td class="center">7.05 - 8.66</td>
+                <td class="center outcome">AWAY WIN<br>DEVILS M.R.O.</td>
+            </tr>
+            <tr>
+                <td>#4303</td>
+                <td>-</td>
+                <td></td>
+                <td class="team-name">CANUCKS COTE-ST-LUC</td>
+                <td class="team-name">RAPIDES LACHINE</td>
+                <td class="center"><span class="prob-medium">59.5%</span></td>
+                <td class="center"><span class="prob-low">9.4%</span></td>
+                <td class="center"><span class="prob-medium">31.1%</span></td>
+                <td class="center">1.74 - 1.39</td>
+                <td class="center outcome">HOME WIN<br>CANUCKS COTE-ST-LUC</td>
+            </tr>
+            <tr>
+                <td>#4347</td>
+                <td>2026-02-17 19:00</td>
+                <td>VILLE MONT-ROYAL</td>
+                <td class="team-name">DIABLES M.R.O.</td>
+                <td class="team-name">WARRIORS ST-LAURENT</td>
+                <td class="center"><span class="prob-high">98.2%</span></td>
+                <td class="center"><span class="prob-low">0.0%</span></td>
+                <td class="center"><span class="prob-low">1.8%</span></td>
+                <td class="center">12.46 - 8.89</td>
+                <td class="center outcome">HOME WIN<br>DIABLES M.R.O.</td>
+            </tr>
+            <tr>
+                <td>#4308</td>
+                <td>2026-02-22 18:00</td>
+                <td>VILLE MONT-ROYAL</td>
+                <td class="team-name">DEVILS M.R.O.</td>
+                <td class="team-name">RAPIDES LACHINE</td>
+                <td class="center"><span class="prob-high">78.8%</span></td>
+                <td class="center"><span class="prob-low">0.7%</span></td>
+                <td class="center"><span class="prob-low">20.5%</span></td>
+                <td class="center">5.70 - 4.52</td>
+                <td class="center outcome">HOME WIN<br>DEVILS M.R.O.</td>
+            </tr>
+            <tr>
+                <td>#4330</td>
+                <td>2026-02-27 19:30</td>
+                <td>RAYMOND BOURQUE 1</td>
+                <td class="team-name">WARRIORS ST-LAURENT</td>
+                <td class="team-name">DEVILS M.R.O.</td>
+                <td class="center"><span class="prob-low">0.1%</span></td>
+                <td class="center"><span class="prob-low">0.0%</span></td>
+                <td class="center"><span class="prob-high">99.9%</span></td>
+                <td class="center">9.50 - 15.59</td>
+                <td class="center outcome">AWAY WIN<br>DEVILS M.R.O.</td>
+            </tr>
+            <tr>
+                <td>#4378</td>
+                <td>2026-02-27 20:00</td>
+                <td>PETE MORIN</td>
+                <td class="team-name">RAPIDES LACHINE</td>
+                <td class="team-name">DIABLES M.R.O.</td>
+                <td class="center"><span class="prob-high">64.3%</span></td>
+                <td class="center"><span class="prob-low">6.9%</span></td>
+                <td class="center"><span class="prob-low">28.9%</span></td>
+                <td class="center">4.66 - 4.13</td>
+                <td class="center outcome">HOME WIN<br>RAPIDES LACHINE</td>
+            </tr>
+            <tr>
+                <td>#4307</td>
+                <td>2026-02-16 20:00</td>
+                <td>PETE MORIN</td>
+                <td class="team-name">KNIGHTS M.W.H.</td>
+                <td class="team-name">RAPIDES LACHINE</td>
+                <td class="center"><span class="prob-medium">34.2%</span></td>
+                <td class="center"><span class="prob-low">6.0%</span></td>
+                <td class="center"><span class="prob-medium">59.8%</span></td>
+                <td class="center">2.07 - 2.66</td>
+                <td class="center outcome">AWAY WIN<br>RAPIDES LACHINE</td>
+            </tr>
+            <tr>
+                <td>#4311</td>
+                <td>2026-02-19 20:00</td>
+                <td>LEGION MEMORIAL RINK</td>
+                <td class="team-name">KNIGHTS M.W.H.</td>
+                <td class="team-name">PANTHERES LASALLE</td>
+                <td class="center"><span class="prob-medium">33.9%</span></td>
+                <td class="center"><span class="prob-low">5.9%</span></td>
+                <td class="center"><span class="prob-high">60.2%</span></td>
+                <td class="center">2.55 - 3.15</td>
+                <td class="center outcome">AWAY WIN<br>PANTHERES LASALLE</td>
+            </tr>
+            <tr>
+                <td>#4318</td>
+                <td>2026-02-20 18:30</td>
+                <td>LEGION MEMORIAL RINK</td>
+                <td class="team-name">KNIGHTS M.W.H.</td>
+                <td class="team-name">BULLDOGS VERDUN</td>
+                <td class="center"><span class="prob-low">29.7%</span></td>
+                <td class="center"><span class="prob-low">3.6%</span></td>
+                <td class="center"><span class="prob-high">66.7%</span></td>
+                <td class="center">0.72 - 1.49</td>
+                <td class="center outcome">AWAY WIN<br>BULLDOGS VERDUN</td>
+            </tr>
+            <tr>
+                <td>#4329</td>
+                <td>2026-02-22 13:00</td>
+                <td>DENIS-SAVARD</td>
+                <td class="team-name">BULLDOGS VERDUN</td>
+                <td class="team-name">KNIGHTS M.W.H.</td>
+                <td class="center"><span class="prob-high">72.8%</span></td>
+                <td class="center"><span class="prob-low">2.5%</span></td>
+                <td class="center"><span class="prob-low">24.7%</span></td>
+                <td class="center">1.57 - 0.68</td>
+                <td class="center outcome">HOME WIN<br>BULLDOGS VERDUN</td>
+            </tr>
+            <tr>
+                <td>#4351</td>
+                <td>2026-02-21 17:30</td>
+                <td>LOWER CANADA COLLEGE</td>
+                <td class="team-name">KNIGHTS M.W.H.</td>
+                <td class="team-name">DEVILS M.R.O.</td>
+                <td class="center"><span class="prob-low">11.6%</span></td>
+                <td class="center"><span class="prob-low">0.0%</span></td>
+                <td class="center"><span class="prob-high">88.4%</span></td>
+                <td class="center">3.37 - 5.20</td>
+                <td class="center outcome">AWAY WIN<br>DEVILS M.R.O.</td>
+            </tr>
+            <tr>
+                <td>#4390</td>
+                <td>2026-02-24 19:00</td>
+                <td>LEGION MEMORIAL RINK</td>
+                <td class="team-name">KNIGHTS M.W.H.</td>
+                <td class="team-name">DEVILS M.R.O.</td>
+                <td class="center"><span class="prob-low">11.6%</span></td>
+                <td class="center"><span class="prob-low">0.0%</span></td>
+                <td class="center"><span class="prob-high">88.4%</span></td>
+                <td class="center">3.37 - 5.20</td>
+                <td class="center outcome">AWAY WIN<br>DEVILS M.R.O.</td>
+            </tr>
+        </tbody>
+    </table>
+    
+    <div style="margin-top: 20px; padding: 15px; background-color: #ecf0f1; border-radius: 5px;">
+        <h3>Methodology</h3>
+        <p><strong>Team Ratings:</strong> Calculated from all completed games using offensive (goals scored) and defensive (goals conceded) performance relative to league average.</p>
+        <p><strong>Predictions:</strong> Based on team ratings with home ice advantage factor (~5%). Probabilities calculated using expected goal difference and statistical distributions.</p>
+        <p><strong>Color Coding:</strong> 
+            <span class="prob-high">Green ≥60%</span>, 
+            <span class="prob-medium">Orange 30-59%</span>, 
+            <span class="prob-low">Red <30%</span>
+        </p>
+    </div>
+</body>
+</html>
