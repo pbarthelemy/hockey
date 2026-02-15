@@ -1,0 +1,1103 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>ELO Prediction Validation - E.H.L. Moins de 15 ans B</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            background-color: #f5f5f5;
+        }
+        h1, h2 {
+            color: #333;
+        }
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            background-color: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .summary {
+            background-color: #e8f4f8;
+            padding: 15px;
+            border-radius: 5px;
+            margin: 20px 0;
+        }
+        table {
+            border-collapse: collapse;
+            width: 100%;
+            margin: 20px 0;
+        }
+        th, td {
+            border: 1px solid #ddd;
+            padding: 12px;
+            text-align: left;
+        }
+        th {
+            background-color: #2c3e50;
+            color: white;
+            font-weight: bold;
+        }
+        tbody tr:nth-child(odd) {
+            background-color: #f9f9f9;
+        }
+        .correct {
+            background-color: #d4edda !important;
+            color: #155724;
+        }
+        .incorrect {
+            background-color: #f8d7da !important;
+            color: #721c24;
+        }
+        .accuracy-high {
+            color: #27ae60;
+            font-weight: bold;
+        }
+        .accuracy-medium {
+            color: #f39c12;
+            font-weight: bold;
+        }
+        .accuracy-low {
+            color: #e74c3c;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>ELO Prediction Validation</h1>
+        <h2>E.H.L. - Moins de 15 ans - Level B</h2>
+        
+        <div class="summary">
+            <h3>Overall Accuracy</h3>
+            <p><strong>55</strong> correct predictions out of <strong>77</strong> games</p>
+            <p><strong>Accuracy: 71.4%</strong></p>
+        </div>
+        
+        <h2>Accuracy by Team</h2>
+        <table>
+            <thead>
+                <tr>
+                    <th>Team</th>
+                    <th>Correct Predictions</th>
+                    <th>Total Games</th>
+                    <th>Accuracy</th>
+                </tr>
+            </thead>
+            <tbody>
+
+                <tr>
+                    <td><strong>BULLDOGS VERDUN</strong></td>
+                    <td>18</td>
+                    <td>21</td>
+                    <td class="accuracy-high">85.7%</td>
+                </tr>
+
+                <tr>
+                    <td><strong>CANUCKS COTE-ST-LUC</strong></td>
+                    <td>18</td>
+                    <td>21</td>
+                    <td class="accuracy-high">85.7%</td>
+                </tr>
+
+                <tr>
+                    <td><strong>DEVILS M.R.O.</strong></td>
+                    <td>11</td>
+                    <td>18</td>
+                    <td class="accuracy-high">61.1%</td>
+                </tr>
+
+                <tr>
+                    <td><strong>DIABLES M.R.O.</strong></td>
+                    <td>13</td>
+                    <td>20</td>
+                    <td class="accuracy-high">65.0%</td>
+                </tr>
+
+                <tr>
+                    <td><strong>KNIGHTS M.W.H.</strong></td>
+                    <td>8</td>
+                    <td>13</td>
+                    <td class="accuracy-high">61.5%</td>
+                </tr>
+
+                <tr>
+                    <td><strong>MOHAWKS KAHNAWAKE</strong></td>
+                    <td>3</td>
+                    <td>3</td>
+                    <td class="accuracy-high">100.0%</td>
+                </tr>
+
+                <tr>
+                    <td><strong>PANTHERES LASALLE</strong></td>
+                    <td>12</td>
+                    <td>20</td>
+                    <td class="accuracy-high">60.0%</td>
+                </tr>
+
+                <tr>
+                    <td><strong>RAPIDES LACHINE</strong></td>
+                    <td>12</td>
+                    <td>18</td>
+                    <td class="accuracy-high">66.7%</td>
+                </tr>
+
+                <tr>
+                    <td><strong>WARRIORS ST-LAURENT</strong></td>
+                    <td>15</td>
+                    <td>20</td>
+                    <td class="accuracy-high">75.0%</td>
+                </tr>
+
+            </tbody>
+        </table>
+        
+        <h2>Game-by-Game Validation Results</h2>
+        <table>
+            <thead>
+                <tr>
+                    <th>Game ID</th>
+                    <th>Date</th>
+                    <th>Home</th>
+                    <th>Away</th>
+                    <th>Score</th>
+                    <th>Predicted Winner</th>
+                    <th>Actual Winner</th>
+                    <th>Result</th>
+                    <th>Confidence</th>
+                </tr>
+            </thead>
+            <tbody>
+
+                <tr class="correct">
+                    <td>#4327</td>
+                    <td>2025-10-18 17:00</td>
+                    <td>PANTHERES LASALLE</td>
+                    <td>DEVILS M.R.O.</td>
+                    <td>2-3</td>
+                    <td>DEVILS M.R.O.</td>
+                    <td>DEVILS M.R.O.</td>
+                    <td><strong>✓ Correct</strong></td>
+                    <td>52.5%</td>
+                </tr>
+
+                <tr class="incorrect">
+                    <td>#4301</td>
+                    <td>2025-10-19 15:00</td>
+                    <td>BULLDOGS VERDUN</td>
+                    <td>CANUCKS COTE-ST-LUC</td>
+                    <td>8-2</td>
+                    <td>CANUCKS COTE-ST-LUC</td>
+                    <td>BULLDOGS VERDUN</td>
+                    <td><strong>✗ Incorrect</strong></td>
+                    <td>54.6%</td>
+                </tr>
+
+                <tr class="correct">
+                    <td>#4358</td>
+                    <td>2025-10-19 18:00</td>
+                    <td>WARRIORS ST-LAURENT</td>
+                    <td>MOHAWKS KAHNAWAKE</td>
+                    <td>13-0</td>
+                    <td>WARRIORS ST-LAURENT</td>
+                    <td>WARRIORS ST-LAURENT</td>
+                    <td><strong>✓ Correct</strong></td>
+                    <td>76.4%</td>
+                </tr>
+
+                <tr class="incorrect">
+                    <td>#4323</td>
+                    <td>2025-10-21 20:00</td>
+                    <td>RAPIDES LACHINE</td>
+                    <td>DEVILS M.R.O.</td>
+                    <td>0-0</td>
+                    <td>DEVILS M.R.O.</td>
+                    <td>Tie</td>
+                    <td><strong>✗ Incorrect</strong></td>
+                    <td>50.6%</td>
+                </tr>
+
+                <tr class="correct">
+                    <td>#4349</td>
+                    <td>2025-10-22 20:00</td>
+                    <td>PANTHERES LASALLE</td>
+                    <td>CANUCKS COTE-ST-LUC</td>
+                    <td>4-1</td>
+                    <td>PANTHERES LASALLE</td>
+                    <td>PANTHERES LASALLE</td>
+                    <td><strong>✓ Correct</strong></td>
+                    <td>51.4%</td>
+                </tr>
+
+                <tr class="correct">
+                    <td>#4342</td>
+                    <td>2025-10-24 19:30</td>
+                    <td>WARRIORS ST-LAURENT</td>
+                    <td>DIABLES M.R.O.</td>
+                    <td>3-1</td>
+                    <td>WARRIORS ST-LAURENT</td>
+                    <td>WARRIORS ST-LAURENT</td>
+                    <td><strong>✓ Correct</strong></td>
+                    <td>61.9%</td>
+                </tr>
+
+                <tr class="correct">
+                    <td>#4394</td>
+                    <td>2025-10-25 19:00</td>
+                    <td>RAPIDES LACHINE</td>
+                    <td>MOHAWKS KAHNAWAKE</td>
+                    <td>9-0</td>
+                    <td>RAPIDES LACHINE</td>
+                    <td>RAPIDES LACHINE</td>
+                    <td><strong>✓ Correct</strong></td>
+                    <td>75.8%</td>
+                </tr>
+
+                <tr class="incorrect">
+                    <td>#4371</td>
+                    <td>2025-10-26 15:30</td>
+                    <td>BULLDOGS VERDUN</td>
+                    <td>RAPIDES LACHINE</td>
+                    <td>1-2</td>
+                    <td>BULLDOGS VERDUN</td>
+                    <td>RAPIDES LACHINE</td>
+                    <td><strong>✗ Incorrect</strong></td>
+                    <td>57.2%</td>
+                </tr>
+
+                <tr class="correct">
+                    <td>#4357</td>
+                    <td>2025-10-26 18:00</td>
+                    <td>DEVILS M.R.O.</td>
+                    <td>CANUCKS COTE-ST-LUC</td>
+                    <td>5-0</td>
+                    <td>DEVILS M.R.O.</td>
+                    <td>DEVILS M.R.O.</td>
+                    <td><strong>✓ Correct</strong></td>
+                    <td>70.8%</td>
+                </tr>
+
+                <tr class="correct">
+                    <td>#4321</td>
+                    <td>2025-10-26 19:00</td>
+                    <td>DIABLES M.R.O.</td>
+                    <td>MOHAWKS KAHNAWAKE</td>
+                    <td>7-0</td>
+                    <td>DIABLES M.R.O.</td>
+                    <td>DIABLES M.R.O.</td>
+                    <td><strong>✓ Correct</strong></td>
+                    <td>81.6%</td>
+                </tr>
+
+                <tr class="correct">
+                    <td>#4392</td>
+                    <td>2025-11-02 15:00</td>
+                    <td>PANTHERES LASALLE</td>
+                    <td>RAPIDES LACHINE</td>
+                    <td>4-0</td>
+                    <td>PANTHERES LASALLE</td>
+                    <td>PANTHERES LASALLE</td>
+                    <td><strong>✓ Correct</strong></td>
+                    <td>52.9%</td>
+                </tr>
+
+                <tr class="correct">
+                    <td>#4387</td>
+                    <td>2025-11-02 17:00</td>
+                    <td>DIABLES M.R.O.</td>
+                    <td>CANUCKS COTE-ST-LUC</td>
+                    <td>4-1</td>
+                    <td>DIABLES M.R.O.</td>
+                    <td>DIABLES M.R.O.</td>
+                    <td><strong>✓ Correct</strong></td>
+                    <td>74.7%</td>
+                </tr>
+
+                <tr class="correct">
+                    <td>#4385</td>
+                    <td>2025-11-02 18:00</td>
+                    <td>DEVILS M.R.O.</td>
+                    <td>BULLDOGS VERDUN</td>
+                    <td>13-1</td>
+                    <td>DEVILS M.R.O.</td>
+                    <td>DEVILS M.R.O.</td>
+                    <td><strong>✓ Correct</strong></td>
+                    <td>71.9%</td>
+                </tr>
+
+                <tr class="correct">
+                    <td>#4383</td>
+                    <td>2025-11-06 20:00</td>
+                    <td>CANUCKS COTE-ST-LUC</td>
+                    <td>RAPIDES LACHINE</td>
+                    <td>2-4</td>
+                    <td>RAPIDES LACHINE</td>
+                    <td>RAPIDES LACHINE</td>
+                    <td><strong>✓ Correct</strong></td>
+                    <td>50.0%</td>
+                </tr>
+
+                <tr class="incorrect">
+                    <td>#4395</td>
+                    <td>2025-11-08 17:30</td>
+                    <td>WARRIORS ST-LAURENT</td>
+                    <td>DIABLES M.R.O.</td>
+                    <td>2-2</td>
+                    <td>WARRIORS ST-LAURENT</td>
+                    <td>Tie</td>
+                    <td><strong>✗ Incorrect</strong></td>
+                    <td>61.9%</td>
+                </tr>
+
+                <tr class="incorrect">
+                    <td>#4386</td>
+                    <td>2025-11-08 19:30</td>
+                    <td>DEVILS M.R.O.</td>
+                    <td>PANTHERES LASALLE</td>
+                    <td>1-2</td>
+                    <td>DEVILS M.R.O.</td>
+                    <td>PANTHERES LASALLE</td>
+                    <td><strong>✗ Incorrect</strong></td>
+                    <td>70.7%</td>
+                </tr>
+
+                <tr class="correct">
+                    <td>#4391</td>
+                    <td>2025-11-09 14:00</td>
+                    <td>PANTHERES LASALLE</td>
+                    <td>DIABLES M.R.O.</td>
+                    <td>3-1</td>
+                    <td>PANTHERES LASALLE</td>
+                    <td>PANTHERES LASALLE</td>
+                    <td><strong>✓ Correct</strong></td>
+                    <td>56.0%</td>
+                </tr>
+
+                <tr class="incorrect">
+                    <td>#4310</td>
+                    <td>2025-11-14 20:00</td>
+                    <td>RAPIDES LACHINE</td>
+                    <td>DIABLES M.R.O.</td>
+                    <td>0-3</td>
+                    <td>RAPIDES LACHINE</td>
+                    <td>DIABLES M.R.O.</td>
+                    <td><strong>✗ Incorrect</strong></td>
+                    <td>58.6%</td>
+                </tr>
+
+                <tr class="correct">
+                    <td>#4334</td>
+                    <td>2025-11-15 18:30</td>
+                    <td>WARRIORS ST-LAURENT</td>
+                    <td>RAPIDES LACHINE</td>
+                    <td>2-1</td>
+                    <td>WARRIORS ST-LAURENT</td>
+                    <td>WARRIORS ST-LAURENT</td>
+                    <td><strong>✓ Correct</strong></td>
+                    <td>69.3%</td>
+                </tr>
+
+                <tr class="correct">
+                    <td>#4353</td>
+                    <td>2025-11-15 19:30</td>
+                    <td>DIABLES M.R.O.</td>
+                    <td>BULLDOGS VERDUN</td>
+                    <td>4-0</td>
+                    <td>DIABLES M.R.O.</td>
+                    <td>DIABLES M.R.O.</td>
+                    <td><strong>✓ Correct</strong></td>
+                    <td>78.5%</td>
+                </tr>
+
+                <tr class="correct">
+                    <td>#4317</td>
+                    <td>2025-11-16 13:00</td>
+                    <td>BULLDOGS VERDUN</td>
+                    <td>WARRIORS ST-LAURENT</td>
+                    <td>0-8</td>
+                    <td>WARRIORS ST-LAURENT</td>
+                    <td>WARRIORS ST-LAURENT</td>
+                    <td><strong>✓ Correct</strong></td>
+                    <td>58.8%</td>
+                </tr>
+
+                <tr class="correct">
+                    <td>#4384</td>
+                    <td>2025-11-17 20:00</td>
+                    <td>CANUCKS COTE-ST-LUC</td>
+                    <td>WARRIORS ST-LAURENT</td>
+                    <td>0-9</td>
+                    <td>WARRIORS ST-LAURENT</td>
+                    <td>WARRIORS ST-LAURENT</td>
+                    <td><strong>✓ Correct</strong></td>
+                    <td>64.5%</td>
+                </tr>
+
+                <tr class="correct">
+                    <td>#4336</td>
+                    <td>2025-11-19 20:00</td>
+                    <td>PANTHERES LASALLE</td>
+                    <td>RAPIDES LACHINE</td>
+                    <td>3-1</td>
+                    <td>PANTHERES LASALLE</td>
+                    <td>PANTHERES LASALLE</td>
+                    <td><strong>✓ Correct</strong></td>
+                    <td>66.8%</td>
+                </tr>
+
+                <tr class="correct">
+                    <td>#4382</td>
+                    <td>2025-11-22 15:00</td>
+                    <td>BULLDOGS VERDUN</td>
+                    <td>WARRIORS ST-LAURENT</td>
+                    <td>0-7</td>
+                    <td>WARRIORS ST-LAURENT</td>
+                    <td>WARRIORS ST-LAURENT</td>
+                    <td><strong>✓ Correct</strong></td>
+                    <td>71.5%</td>
+                </tr>
+
+                <tr class="incorrect">
+                    <td>#4379</td>
+                    <td>2025-11-23 19:00</td>
+                    <td>WARRIORS ST-LAURENT</td>
+                    <td>PANTHERES LASALLE</td>
+                    <td>1-4</td>
+                    <td>WARRIORS ST-LAURENT</td>
+                    <td>PANTHERES LASALLE</td>
+                    <td><strong>✗ Incorrect</strong></td>
+                    <td>73.1%</td>
+                </tr>
+
+                <tr class="correct">
+                    <td>#4381</td>
+                    <td>2025-11-25 20:00</td>
+                    <td>BULLDOGS VERDUN</td>
+                    <td>CANUCKS COTE-ST-LUC</td>
+                    <td>3-1</td>
+                    <td>BULLDOGS VERDUN</td>
+                    <td>BULLDOGS VERDUN</td>
+                    <td><strong>✓ Correct</strong></td>
+                    <td>56.4%</td>
+                </tr>
+
+                <tr class="incorrect">
+                    <td>#4340</td>
+                    <td>2025-11-28 20:00</td>
+                    <td>RAPIDES LACHINE</td>
+                    <td>PANTHERES LASALLE</td>
+                    <td>1-1</td>
+                    <td>PANTHERES LASALLE</td>
+                    <td>Tie</td>
+                    <td><strong>✗ Incorrect</strong></td>
+                    <td>52.8%</td>
+                </tr>
+
+                <tr class="correct">
+                    <td>#4345</td>
+                    <td>2025-11-30 12:00</td>
+                    <td>BULLDOGS VERDUN</td>
+                    <td>PANTHERES LASALLE</td>
+                    <td>1-6</td>
+                    <td>PANTHERES LASALLE</td>
+                    <td>PANTHERES LASALLE</td>
+                    <td><strong>✓ Correct</strong></td>
+                    <td>67.2%</td>
+                </tr>
+
+                <tr class="correct">
+                    <td>#4325</td>
+                    <td>2025-11-30 18:00</td>
+                    <td>DEVILS M.R.O.</td>
+                    <td>KNIGHTS M.W.H.</td>
+                    <td>5-1</td>
+                    <td>DEVILS M.R.O.</td>
+                    <td>DEVILS M.R.O.</td>
+                    <td><strong>✓ Correct</strong></td>
+                    <td>69.9%</td>
+                </tr>
+
+                <tr class="correct">
+                    <td>#4373</td>
+                    <td>2025-12-01 20:00</td>
+                    <td>CANUCKS COTE-ST-LUC</td>
+                    <td>KNIGHTS M.W.H.</td>
+                    <td>0-3</td>
+                    <td>KNIGHTS M.W.H.</td>
+                    <td>KNIGHTS M.W.H.</td>
+                    <td><strong>✓ Correct</strong></td>
+                    <td>52.4%</td>
+                </tr>
+
+                <tr class="correct">
+                    <td>#4393</td>
+                    <td>2025-12-02 20:00</td>
+                    <td>RAPIDES LACHINE</td>
+                    <td>DEVILS M.R.O.</td>
+                    <td>1-4</td>
+                    <td>DEVILS M.R.O.</td>
+                    <td>DEVILS M.R.O.</td>
+                    <td><strong>✓ Correct</strong></td>
+                    <td>53.5%</td>
+                </tr>
+
+                <tr class="correct">
+                    <td>#4337</td>
+                    <td>2025-12-03 20:00</td>
+                    <td>CANUCKS COTE-ST-LUC</td>
+                    <td>DEVILS M.R.O.</td>
+                    <td>0-5</td>
+                    <td>DEVILS M.R.O.</td>
+                    <td>DEVILS M.R.O.</td>
+                    <td><strong>✓ Correct</strong></td>
+                    <td>73.9%</td>
+                </tr>
+
+                <tr class="correct">
+                    <td>#4339</td>
+                    <td>2025-12-07 18:00</td>
+                    <td>WARRIORS ST-LAURENT</td>
+                    <td>CANUCKS COTE-ST-LUC</td>
+                    <td>5-0</td>
+                    <td>WARRIORS ST-LAURENT</td>
+                    <td>WARRIORS ST-LAURENT</td>
+                    <td><strong>✓ Correct</strong></td>
+                    <td>90.2%</td>
+                </tr>
+
+                <tr class="correct">
+                    <td>#4377</td>
+                    <td>2025-12-11 20:00</td>
+                    <td>CANUCKS COTE-ST-LUC</td>
+                    <td>PANTHERES LASALLE</td>
+                    <td>1-3</td>
+                    <td>PANTHERES LASALLE</td>
+                    <td>PANTHERES LASALLE</td>
+                    <td><strong>✓ Correct</strong></td>
+                    <td>77.1%</td>
+                </tr>
+
+                <tr class="correct">
+                    <td>#4369</td>
+                    <td>2025-12-12 19:30</td>
+                    <td>WARRIORS ST-LAURENT</td>
+                    <td>BULLDOGS VERDUN</td>
+                    <td>7-0</td>
+                    <td>WARRIORS ST-LAURENT</td>
+                    <td>WARRIORS ST-LAURENT</td>
+                    <td><strong>✓ Correct</strong></td>
+                    <td>88.9%</td>
+                </tr>
+
+                <tr class="correct">
+                    <td>#4309</td>
+                    <td>2025-12-14 13:00</td>
+                    <td>BULLDOGS VERDUN</td>
+                    <td>DEVILS M.R.O.</td>
+                    <td>1-6</td>
+                    <td>DEVILS M.R.O.</td>
+                    <td>DEVILS M.R.O.</td>
+                    <td><strong>✓ Correct</strong></td>
+                    <td>75.4%</td>
+                </tr>
+
+                <tr class="correct">
+                    <td>#4396</td>
+                    <td>2025-12-15 19:30</td>
+                    <td>WARRIORS ST-LAURENT</td>
+                    <td>KNIGHTS M.W.H.</td>
+                    <td>3-1</td>
+                    <td>WARRIORS ST-LAURENT</td>
+                    <td>WARRIORS ST-LAURENT</td>
+                    <td><strong>✓ Correct</strong></td>
+                    <td>76.1%</td>
+                </tr>
+
+                <tr class="correct">
+                    <td>#4367</td>
+                    <td>2025-12-17 20:00</td>
+                    <td>PANTHERES LASALLE</td>
+                    <td>BULLDOGS VERDUN</td>
+                    <td>7-2</td>
+                    <td>PANTHERES LASALLE</td>
+                    <td>PANTHERES LASALLE</td>
+                    <td><strong>✓ Correct</strong></td>
+                    <td>90.1%</td>
+                </tr>
+
+                <tr class="incorrect">
+                    <td>#4388</td>
+                    <td>2025-12-20 18:30</td>
+                    <td>DIABLES M.R.O.</td>
+                    <td>PANTHERES LASALLE</td>
+                    <td>1-3</td>
+                    <td>DIABLES M.R.O.</td>
+                    <td>PANTHERES LASALLE</td>
+                    <td><strong>✗ Incorrect</strong></td>
+                    <td>57.4%</td>
+                </tr>
+
+                <tr class="correct">
+                    <td>#4344</td>
+                    <td>2025-12-21 12:00</td>
+                    <td>BULLDOGS VERDUN</td>
+                    <td>DIABLES M.R.O.</td>
+                    <td>0-2</td>
+                    <td>DIABLES M.R.O.</td>
+                    <td>DIABLES M.R.O.</td>
+                    <td><strong>✓ Correct</strong></td>
+                    <td>71.9%</td>
+                </tr>
+
+                <tr class="correct">
+                    <td>#4328</td>
+                    <td>2025-12-21 19:00</td>
+                    <td>DEVILS M.R.O.</td>
+                    <td>RAPIDES LACHINE</td>
+                    <td>4-0</td>
+                    <td>DEVILS M.R.O.</td>
+                    <td>DEVILS M.R.O.</td>
+                    <td><strong>✓ Correct</strong></td>
+                    <td>80.9%</td>
+                </tr>
+
+                <tr class="correct">
+                    <td>#4314</td>
+                    <td>2026-01-05 20:00</td>
+                    <td>CANUCKS COTE-ST-LUC</td>
+                    <td>DIABLES M.R.O.</td>
+                    <td>0-6</td>
+                    <td>DIABLES M.R.O.</td>
+                    <td>DIABLES M.R.O.</td>
+                    <td><strong>✓ Correct</strong></td>
+                    <td>75.2%</td>
+                </tr>
+
+                <tr class="incorrect">
+                    <td>#4363</td>
+                    <td>2026-01-06 19:00</td>
+                    <td>DEVILS M.R.O.</td>
+                    <td>WARRIORS ST-LAURENT</td>
+                    <td>1-3</td>
+                    <td>DEVILS M.R.O.</td>
+                    <td>WARRIORS ST-LAURENT</td>
+                    <td><strong>✗ Incorrect</strong></td>
+                    <td>62.2%</td>
+                </tr>
+
+                <tr class="correct">
+                    <td>#4365</td>
+                    <td>2026-01-06 20:00</td>
+                    <td>RAPIDES LACHINE</td>
+                    <td>BULLDOGS VERDUN</td>
+                    <td>9-0</td>
+                    <td>RAPIDES LACHINE</td>
+                    <td>RAPIDES LACHINE</td>
+                    <td><strong>✓ Correct</strong></td>
+                    <td>79.1%</td>
+                </tr>
+
+                <tr class="incorrect">
+                    <td>#4355</td>
+                    <td>2026-01-09 19:00</td>
+                    <td>DIABLES M.R.O.</td>
+                    <td>DEVILS M.R.O.</td>
+                    <td>1-3</td>
+                    <td>DIABLES M.R.O.</td>
+                    <td>DEVILS M.R.O.</td>
+                    <td><strong>✗ Incorrect</strong></td>
+                    <td>57.8%</td>
+                </tr>
+
+                <tr class="incorrect">
+                    <td>#4332</td>
+                    <td>2026-01-10 16:00</td>
+                    <td>PANTHERES LASALLE</td>
+                    <td>KNIGHTS M.W.H.</td>
+                    <td>1-4</td>
+                    <td>PANTHERES LASALLE</td>
+                    <td>KNIGHTS M.W.H.</td>
+                    <td><strong>✗ Incorrect</strong></td>
+                    <td>78.3%</td>
+                </tr>
+
+                <tr class="correct">
+                    <td>#4352</td>
+                    <td>2026-01-10 19:30</td>
+                    <td>DIABLES M.R.O.</td>
+                    <td>CANUCKS COTE-ST-LUC</td>
+                    <td>5-0</td>
+                    <td>DIABLES M.R.O.</td>
+                    <td>DIABLES M.R.O.</td>
+                    <td><strong>✓ Correct</strong></td>
+                    <td>90.2%</td>
+                </tr>
+
+                <tr class="incorrect">
+                    <td>#4374</td>
+                    <td>2026-01-11 18:00</td>
+                    <td>DIABLES M.R.O.</td>
+                    <td>RAPIDES LACHINE</td>
+                    <td>3-3</td>
+                    <td>DIABLES M.R.O.</td>
+                    <td>Tie</td>
+                    <td><strong>✗ Incorrect</strong></td>
+                    <td>74.6%</td>
+                </tr>
+
+                <tr class="correct">
+                    <td>#4306</td>
+                    <td>2026-01-11 19:00</td>
+                    <td>DEVILS M.R.O.</td>
+                    <td>BULLDOGS VERDUN</td>
+                    <td>11-2</td>
+                    <td>DEVILS M.R.O.</td>
+                    <td>DEVILS M.R.O.</td>
+                    <td><strong>✓ Correct</strong></td>
+                    <td>93.1%</td>
+                </tr>
+
+                <tr class="incorrect">
+                    <td>#4313</td>
+                    <td>2026-01-11 20:00</td>
+                    <td>CANUCKS COTE-ST-LUC</td>
+                    <td>KNIGHTS M.W.H.</td>
+                    <td>2-1</td>
+                    <td>KNIGHTS M.W.H.</td>
+                    <td>CANUCKS COTE-ST-LUC</td>
+                    <td><strong>✗ Incorrect</strong></td>
+                    <td>74.5%</td>
+                </tr>
+
+                <tr class="incorrect">
+                    <td>#4380</td>
+                    <td>2026-01-13 19:00</td>
+                    <td>DEVILS M.R.O.</td>
+                    <td>DIABLES M.R.O.</td>
+                    <td>2-4</td>
+                    <td>DEVILS M.R.O.</td>
+                    <td>DIABLES M.R.O.</td>
+                    <td><strong>✗ Incorrect</strong></td>
+                    <td>70.0%</td>
+                </tr>
+
+                <tr class="correct">
+                    <td>#4348</td>
+                    <td>2026-01-15 20:00</td>
+                    <td>CANUCKS COTE-ST-LUC</td>
+                    <td>BULLDOGS VERDUN</td>
+                    <td>6-2</td>
+                    <td>CANUCKS COTE-ST-LUC</td>
+                    <td>CANUCKS COTE-ST-LUC</td>
+                    <td><strong>✓ Correct</strong></td>
+                    <td>63.9%</td>
+                </tr>
+
+                <tr class="correct">
+                    <td>#4316</td>
+                    <td>2026-01-18 18:00</td>
+                    <td>DEVILS M.R.O.</td>
+                    <td>CANUCKS COTE-ST-LUC</td>
+                    <td>3-2</td>
+                    <td>DEVILS M.R.O.</td>
+                    <td>DEVILS M.R.O.</td>
+                    <td><strong>✓ Correct</strong></td>
+                    <td>90.4%</td>
+                </tr>
+
+                <tr class="correct">
+                    <td>#4331</td>
+                    <td>2026-01-18 19:00</td>
+                    <td>DIABLES M.R.O.</td>
+                    <td>PANTHERES LASALLE</td>
+                    <td>2-1</td>
+                    <td>DIABLES M.R.O.</td>
+                    <td>DIABLES M.R.O.</td>
+                    <td><strong>✓ Correct</strong></td>
+                    <td>60.6%</td>
+                </tr>
+
+                <tr class="correct">
+                    <td>#4372</td>
+                    <td>2026-01-19 20:00</td>
+                    <td>CANUCKS COTE-ST-LUC</td>
+                    <td>WARRIORS ST-LAURENT</td>
+                    <td>0-7</td>
+                    <td>WARRIORS ST-LAURENT</td>
+                    <td>WARRIORS ST-LAURENT</td>
+                    <td><strong>✓ Correct</strong></td>
+                    <td>81.6%</td>
+                </tr>
+
+                <tr class="correct">
+                    <td>#4360</td>
+                    <td>2026-01-20 20:00</td>
+                    <td>RAPIDES LACHINE</td>
+                    <td>CANUCKS COTE-ST-LUC</td>
+                    <td>2-0</td>
+                    <td>RAPIDES LACHINE</td>
+                    <td>RAPIDES LACHINE</td>
+                    <td><strong>✓ Correct</strong></td>
+                    <td>82.1%</td>
+                </tr>
+
+                <tr class="correct">
+                    <td>#4364</td>
+                    <td>2026-01-24 17:00</td>
+                    <td>RAPIDES LACHINE</td>
+                    <td>CANUCKS COTE-ST-LUC</td>
+                    <td>3-2</td>
+                    <td>RAPIDES LACHINE</td>
+                    <td>RAPIDES LACHINE</td>
+                    <td><strong>✓ Correct</strong></td>
+                    <td>83.3%</td>
+                </tr>
+
+                <tr class="incorrect">
+                    <td>#4361</td>
+                    <td>2026-01-24 17:00</td>
+                    <td>PANTHERES LASALLE</td>
+                    <td>DEVILS M.R.O.</td>
+                    <td>1-1</td>
+                    <td>PANTHERES LASALLE</td>
+                    <td>Tie</td>
+                    <td><strong>✗ Incorrect</strong></td>
+                    <td>57.2%</td>
+                </tr>
+
+                <tr class="correct">
+                    <td>#4322</td>
+                    <td>2026-01-24 18:30</td>
+                    <td>WARRIORS ST-LAURENT</td>
+                    <td>BULLDOGS VERDUN</td>
+                    <td>9-1</td>
+                    <td>WARRIORS ST-LAURENT</td>
+                    <td>WARRIORS ST-LAURENT</td>
+                    <td><strong>✓ Correct</strong></td>
+                    <td>94.7%</td>
+                </tr>
+
+                <tr class="incorrect">
+                    <td>#4319</td>
+                    <td>2026-01-25 18:00</td>
+                    <td>DEVILS M.R.O.</td>
+                    <td>WARRIORS ST-LAURENT</td>
+                    <td>1-2</td>
+                    <td>DEVILS M.R.O.</td>
+                    <td>WARRIORS ST-LAURENT</td>
+                    <td><strong>✗ Incorrect</strong></td>
+                    <td>55.0%</td>
+                </tr>
+
+                <tr class="correct">
+                    <td>#4370</td>
+                    <td>2026-01-26 19:30</td>
+                    <td>WARRIORS ST-LAURENT</td>
+                    <td>PANTHERES LASALLE</td>
+                    <td>2-0</td>
+                    <td>WARRIORS ST-LAURENT</td>
+                    <td>WARRIORS ST-LAURENT</td>
+                    <td><strong>✓ Correct</strong></td>
+                    <td>72.3%</td>
+                </tr>
+
+                <tr class="correct">
+                    <td>#4376</td>
+                    <td>2026-01-27 20:00</td>
+                    <td>RAPIDES LACHINE</td>
+                    <td>PANTHERES LASALLE</td>
+                    <td>1-5</td>
+                    <td>PANTHERES LASALLE</td>
+                    <td>PANTHERES LASALLE</td>
+                    <td><strong>✓ Correct</strong></td>
+                    <td>51.7%</td>
+                </tr>
+
+                <tr class="incorrect">
+                    <td>#4354</td>
+                    <td>2026-02-01 13:00</td>
+                    <td>BULLDOGS VERDUN</td>
+                    <td>KNIGHTS M.W.H.</td>
+                    <td>4-3</td>
+                    <td>KNIGHTS M.W.H.</td>
+                    <td>BULLDOGS VERDUN</td>
+                    <td><strong>✗ Incorrect</strong></td>
+                    <td>74.2%</td>
+                </tr>
+
+                <tr class="incorrect">
+                    <td>#4368</td>
+                    <td>2026-02-03 19:00</td>
+                    <td>KNIGHTS M.W.H.</td>
+                    <td>CANUCKS COTE-ST-LUC</td>
+                    <td>1-1</td>
+                    <td>KNIGHTS M.W.H.</td>
+                    <td>Tie</td>
+                    <td><strong>✗ Incorrect</strong></td>
+                    <td>84.8%</td>
+                </tr>
+
+                <tr class="correct">
+                    <td>#4315</td>
+                    <td>2026-02-05 20:00</td>
+                    <td>CANUCKS COTE-ST-LUC</td>
+                    <td>DIABLES M.R.O.</td>
+                    <td>1-7</td>
+                    <td>DIABLES M.R.O.</td>
+                    <td>DIABLES M.R.O.</td>
+                    <td><strong>✓ Correct</strong></td>
+                    <td>77.9%</td>
+                </tr>
+
+                <tr class="correct">
+                    <td>#4335</td>
+                    <td>2026-02-05 20:00</td>
+                    <td>KNIGHTS M.W.H.</td>
+                    <td>WARRIORS ST-LAURENT</td>
+                    <td>0-2</td>
+                    <td>WARRIORS ST-LAURENT</td>
+                    <td>WARRIORS ST-LAURENT</td>
+                    <td><strong>✓ Correct</strong></td>
+                    <td>65.9%</td>
+                </tr>
+
+                <tr class="correct">
+                    <td>#4343</td>
+                    <td>2026-02-06 19:00</td>
+                    <td>DIABLES M.R.O.</td>
+                    <td>WARRIORS ST-LAURENT</td>
+                    <td>1-3</td>
+                    <td>WARRIORS ST-LAURENT</td>
+                    <td>WARRIORS ST-LAURENT</td>
+                    <td><strong>✓ Correct</strong></td>
+                    <td>50.2%</td>
+                </tr>
+
+                <tr class="correct">
+                    <td>#4320</td>
+                    <td>2026-02-06 20:00</td>
+                    <td>RAPIDES LACHINE</td>
+                    <td>KNIGHTS M.W.H.</td>
+                    <td>1-0</td>
+                    <td>RAPIDES LACHINE</td>
+                    <td>RAPIDES LACHINE</td>
+                    <td><strong>✓ Correct</strong></td>
+                    <td>59.2%</td>
+                </tr>
+
+                <tr class="incorrect">
+                    <td>#4362</td>
+                    <td>2026-02-07 15:00</td>
+                    <td>PANTHERES LASALLE</td>
+                    <td>DIABLES M.R.O.</td>
+                    <td>1-4</td>
+                    <td>PANTHERES LASALLE</td>
+                    <td>DIABLES M.R.O.</td>
+                    <td><strong>✗ Incorrect</strong></td>
+                    <td>61.6%</td>
+                </tr>
+
+                <tr class="correct">
+                    <td>#4326</td>
+                    <td>2026-02-08 13:00</td>
+                    <td>BULLDOGS VERDUN</td>
+                    <td>DEVILS M.R.O.</td>
+                    <td>0-9</td>
+                    <td>DEVILS M.R.O.</td>
+                    <td>DEVILS M.R.O.</td>
+                    <td><strong>✓ Correct</strong></td>
+                    <td>81.1%</td>
+                </tr>
+
+                <tr class="incorrect">
+                    <td>#4356</td>
+                    <td>2026-02-08 15:30</td>
+                    <td>KNIGHTS M.W.H.</td>
+                    <td>RAPIDES LACHINE</td>
+                    <td>3-3</td>
+                    <td>KNIGHTS M.W.H.</td>
+                    <td>Tie</td>
+                    <td><strong>✗ Incorrect</strong></td>
+                    <td>60.6%</td>
+                </tr>
+
+                <tr class="correct">
+                    <td>#4304</td>
+                    <td>2026-02-10 20:00</td>
+                    <td>KNIGHTS M.W.H.</td>
+                    <td>WARRIORS ST-LAURENT</td>
+                    <td>0-3</td>
+                    <td>WARRIORS ST-LAURENT</td>
+                    <td>WARRIORS ST-LAURENT</td>
+                    <td><strong>✓ Correct</strong></td>
+                    <td>72.5%</td>
+                </tr>
+
+                <tr class="incorrect">
+                    <td>#4305</td>
+                    <td>2026-02-11 20:00</td>
+                    <td>PANTHERES LASALLE</td>
+                    <td>WARRIORS ST-LAURENT</td>
+                    <td>1-0</td>
+                    <td>WARRIORS ST-LAURENT</td>
+                    <td>PANTHERES LASALLE</td>
+                    <td><strong>✗ Incorrect</strong></td>
+                    <td>59.6%</td>
+                </tr>
+
+                <tr class="correct">
+                    <td>#4350</td>
+                    <td>2026-02-12 20:00</td>
+                    <td>KNIGHTS M.W.H.</td>
+                    <td>DIABLES M.R.O.</td>
+                    <td>1-3</td>
+                    <td>DIABLES M.R.O.</td>
+                    <td>DIABLES M.R.O.</td>
+                    <td><strong>✓ Correct</strong></td>
+                    <td>63.4%</td>
+                </tr>
+
+                <tr class="correct">
+                    <td>#4389</td>
+                    <td>2026-02-13 19:30</td>
+                    <td>KNIGHTS M.W.H.</td>
+                    <td>BULLDOGS VERDUN</td>
+                    <td>2-0</td>
+                    <td>KNIGHTS M.W.H.</td>
+                    <td>KNIGHTS M.W.H.</td>
+                    <td><strong>✓ Correct</strong></td>
+                    <td>82.8%</td>
+                </tr>
+
+                <tr class="correct">
+                    <td>#4324</td>
+                    <td>2026-02-14 12:00</td>
+                    <td>DIABLES M.R.O.</td>
+                    <td>BULLDOGS VERDUN</td>
+                    <td>4-0</td>
+                    <td>DIABLES M.R.O.</td>
+                    <td>DIABLES M.R.O.</td>
+                    <td><strong>✓ Correct</strong></td>
+                    <td>94.2%</td>
+                </tr>
+
+                <tr class="correct">
+                    <td>#4341</td>
+                    <td>2026-02-15 11:00</td>
+                    <td>BULLDOGS VERDUN</td>
+                    <td>PANTHERES LASALLE</td>
+                    <td>1-4</td>
+                    <td>PANTHERES LASALLE</td>
+                    <td>PANTHERES LASALLE</td>
+                    <td><strong>✓ Correct</strong></td>
+                    <td>81.8%</td>
+                </tr>
+
+            </tbody>
+        </table>
+    </div>
+</body>
+</html>

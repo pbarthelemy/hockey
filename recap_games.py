@@ -172,7 +172,7 @@ def build_team_results_matrix(games):
     
     return teams, matrix, team_stats
 
-def generate_team_results_table(teams, matrix, team_stats, output_file='recap_table_all_games.html'):
+def generate_team_results_table(teams, matrix, team_stats, output_file='html/recap_table_all_games.html'):
     """Generate HTML table with all games for each team"""
     
     html = """<!DOCTYPE html>
@@ -307,7 +307,7 @@ def generate_team_results_table(teams, matrix, team_stats, output_file='recap_ta
     
     print(f"HTML all games table generated: {output_file}")
 
-def generate_html_table(teams, matrix, output_file='recap_table.html'):
+def generate_html_table(teams, matrix, output_file='html/recap_table.html'):
     """Generate HTML table with match results"""
     
     html = """<!DOCTYPE html>
@@ -434,7 +434,7 @@ def generate_html_table(teams, matrix, output_file='recap_table.html'):
     print(f"\nHTML table generated: {output_file}")
 
 def main():
-    csv_file = 'hockey_games.csv'
+    csv_file = 'csv/hockey_games.csv'
     
     # Filter games for E.H.L., Moins de 15 ans, B
     games = load_and_filter_games(csv_file)

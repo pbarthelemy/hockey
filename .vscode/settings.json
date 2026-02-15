@@ -7,6 +7,7 @@
         "/^python3 elo_games\\.py$/": {
             "approve": true,
             "matchCommandLine": true
-        }
+        },
+        "mkdir": true
     }
 }

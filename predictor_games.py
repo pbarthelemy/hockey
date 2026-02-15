@@ -244,7 +244,7 @@ def display_predictions(predictions):
         else:
             print(f"  Most Likely: TIE")
 
-def save_predictions_csv(predictions, output_file='predictions.csv'):
+def save_predictions_csv(predictions, output_file='csv/predictions.csv'):
     """Save predictions to CSV file"""
     
     if not predictions:
@@ -285,7 +285,7 @@ def save_predictions_csv(predictions, output_file='predictions.csv'):
     
     print(f"\nPredictions saved to {output_file}")
 
-def generate_predictions_html(predictions, team_ratings, output_file='predictions.html'):
+def generate_predictions_html(predictions, team_ratings, output_file='html/predictions.html'):
     """Generate HTML table with predictions"""
     
     if not predictions:
@@ -493,7 +493,7 @@ def generate_predictions_html(predictions, team_ratings, output_file='prediction
     print(f"HTML predictions table generated: {output_file}")
 
 def main():
-    csv_file = 'hockey_games.csv'
+    csv_file = 'csv/hockey_games.csv'
     
     # Filter games for E.H.L., Moins de 15 ans, B
     games = load_and_filter_games(csv_file)

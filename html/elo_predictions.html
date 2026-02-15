@@ -1,0 +1,404 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>ELO Predictions - E.H.L. Moins de 15 ans B</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            background-color: #f5f5f5;
+        }
+        h1, h2 {
+            color: #333;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background-color: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        table {
+            border-collapse: collapse;
+            width: 100%;
+            margin: 20px 0;
+        }
+        th, td {
+            border: 1px solid #ddd;
+            padding: 12px;
+            text-align: left;
+        }
+        th {
+            background-color: #4CAF50;
+            color: white;
+            font-weight: bold;
+        }
+        tr:nth-child(even) {
+            background-color: #f2f2f2;
+        }
+        tr:hover {
+            background-color: #ddd;
+        }
+        .high-prob {
+            background-color: #90EE90;
+            font-weight: bold;
+        }
+        .medium-prob {
+            background-color: #FFFACD;
+        }
+        .low-prob {
+            background-color: #FFB6C1;
+        }
+        .timestamp {
+            color: #666;
+            font-size: 0.9em;
+            margin-bottom: 20px;
+        }
+        .stats-summary {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin: 20px 0;
+        }
+        .stat-card {
+            background-color: #f9f9f9;
+            padding: 15px;
+            border-radius: 5px;
+            border-left: 4px solid #4CAF50;
+        }
+        .stat-label {
+            font-size: 0.9em;
+            color: #666;
+        }
+        .stat-value {
+            font-size: 1.5em;
+            font-weight: bold;
+            color: #333;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🏒 ELO Rating System - Game Predictions</h1>
+        <h2>E.H.L. - Moins de 15 ans - Level B</h2>
+        <div class="timestamp">Generated: 2026-02-15 15:01:18</div>
+        
+        <h2>📊 Team ELO Ratings</h2>
+        <table>
+            <tr>
+                <th>Team</th>
+                <th>Current ELO</th>
+                <th>Games Played</th>
+                <th>Pythagorean Exp.</th>
+                <th>Avg Goals For</th>
+                <th>Avg Goals Against</th>
+                <th>Accuracy (Past Games)</th>
+            </tr>
+            <tr>
+                <td><strong>WARRIORS ST-LAURENT</strong></td>
+                <td>1737.7</td>
+                <td>21</td>
+                <td>0.975</td>
+                <td>4.43</td>
+                <td>0.71</td>
+                <td>75.0%</td>
+            </tr>
+            <tr>
+                <td><strong>DIABLES M.R.O.</strong></td>
+                <td>1653.4</td>
+                <td>21</td>
+                <td>0.867</td>
+                <td>3.29</td>
+                <td>1.29</td>
+                <td>65.0%</td>
+            </tr>
+            <tr>
+                <td><strong>DEVILS M.R.O.</strong></td>
+                <td>1634.0</td>
+                <td>19</td>
+                <td>0.921</td>
+                <td>4.32</td>
+                <td>1.26</td>
+                <td>61.1%</td>
+            </tr>
+            <tr>
+                <td><strong>PANTHERES LASALLE</strong></td>
+                <td>1606.6</td>
+                <td>22</td>
+                <td>0.729</td>
+                <td>2.68</td>
+                <td>1.64</td>
+                <td>60.0%</td>
+            </tr>
+            <tr>
+                <td><strong>RAPIDES LACHINE</strong></td>
+                <td>1467.6</td>
+                <td>19</td>
+                <td>0.537</td>
+                <td>2.21</td>
+                <td>2.05</td>
+                <td>66.7%</td>
+            </tr>
+            <tr>
+                <td><strong>KNIGHTS M.W.H.</strong></td>
+                <td>1447.8</td>
+                <td>14</td>
+                <td>0.350</td>
+                <td>1.57</td>
+                <td>2.14</td>
+                <td>61.5%</td>
+            </tr>
+            <tr>
+                <td><strong>MOHAWKS KAHNAWAKE</strong></td>
+                <td>1395.6</td>
+                <td>4</td>
+                <td>0.000</td>
+                <td>0.00</td>
+                <td>8.25</td>
+                <td>100.0%</td>
+            </tr>
+            <tr>
+                <td><strong>CANUCKS COTE-ST-LUC</strong></td>
+                <td>1297.2</td>
+                <td>22</td>
+                <td>0.094</td>
+                <td>1.32</td>
+                <td>4.09</td>
+                <td>85.7%</td>
+            </tr>
+            <tr>
+                <td><strong>BULLDOGS VERDUN</strong></td>
+                <td>1259.9</td>
+                <td>22</td>
+                <td>0.042</td>
+                <td>1.23</td>
+                <td>5.86</td>
+                <td>85.7%</td>
+            </tr>
+        </table>
+        
+        <h2>🎯 Upcoming Game Predictions</h2>
+        <table>
+            <tr>
+                <th>Game ID</th>
+                <th>Date</th>
+                <th>Location</th>
+                <th>Home Team</th>
+                <th>Away Team</th>
+                <th>Home ELO</th>
+                <th>Away ELO</th>
+                <th>ELO Win %</th>
+                <th>Pyth Win %</th>
+                <th>Combined Win %</th>
+                <th>Predicted Winner</th>
+            </tr>
+            <tr>
+                <td>#4346</td>
+                <td>2026-02-08 12:00</td>
+                <td>JACQUES-LEMAIRE</td>
+                <td>PANTHERES LASALLE</td>
+                <td>CANUCKS COTE-ST-LUC</td>
+                <td>1606.6</td>
+                <td>1297.2</td>
+                <td>91.3%</td>
+                <td>93.2%</td>
+                <td class="high-prob">91.7% / 8.3%</td>
+                <td class="high-prob"><strong>PANTHERES LASALLE</strong></td>
+            </tr>
+            <tr>
+                <td>#4375</td>
+                <td>2026-02-15 17:30</td>
+                <td>RAYMOND BOURQUE 1</td>
+                <td>WARRIORS ST-LAURENT</td>
+                <td>RAPIDES LACHINE</td>
+                <td>1737.7</td>
+                <td>1467.6</td>
+                <td>89.4%</td>
+                <td>87.3%</td>
+                <td class="high-prob">89.0% / 11.0%</td>
+                <td class="high-prob"><strong>WARRIORS ST-LAURENT</strong></td>
+            </tr>
+            <tr>
+                <td>#4359</td>
+                <td>2026-02-15 19:00</td>
+                <td>VILLE MONT-ROYAL</td>
+                <td>DIABLES M.R.O.</td>
+                <td>DEVILS M.R.O.</td>
+                <td>1653.4</td>
+                <td>1634.0</td>
+                <td>66.5%</td>
+                <td>55.3%</td>
+                <td class="medium-prob">64.3% / 35.7%</td>
+                <td class="medium-prob"><strong>DIABLES M.R.O.</strong></td>
+            </tr>
+            <tr>
+                <td>#4303</td>
+                <td>-</td>
+                <td></td>
+                <td>CANUCKS COTE-ST-LUC</td>
+                <td>RAPIDES LACHINE</td>
+                <td>1297.2</td>
+                <td>1467.6</td>
+                <td>40.0%</td>
+                <td>24.0%</td>
+                <td class="medium-prob">36.8% / 63.2%</td>
+                <td class="medium-prob"><strong>RAPIDES LACHINE</strong></td>
+            </tr>
+            <tr>
+                <td>#4347</td>
+                <td>2026-02-17 19:00</td>
+                <td>VILLE MONT-ROYAL</td>
+                <td>DIABLES M.R.O.</td>
+                <td>WARRIORS ST-LAURENT</td>
+                <td>1653.4</td>
+                <td>1737.7</td>
+                <td>52.3%</td>
+                <td>50.6%</td>
+                <td class="low-prob">51.9% / 48.1%</td>
+                <td class="low-prob"><strong>DIABLES M.R.O.</strong></td>
+            </tr>
+            <tr>
+                <td>#4308</td>
+                <td>2026-02-22 18:00</td>
+                <td>VILLE MONT-ROYAL</td>
+                <td>DEVILS M.R.O.</td>
+                <td>RAPIDES LACHINE</td>
+                <td>1634.0</td>
+                <td>1467.6</td>
+                <td>82.3%</td>
+                <td>85.1%</td>
+                <td class="high-prob">82.8% / 17.2%</td>
+                <td class="high-prob"><strong>DEVILS M.R.O.</strong></td>
+            </tr>
+            <tr>
+                <td>#4330</td>
+                <td>2026-02-27 19:30</td>
+                <td>RAYMOND BOURQUE 1</td>
+                <td>WARRIORS ST-LAURENT</td>
+                <td>DEVILS M.R.O.</td>
+                <td>1737.7</td>
+                <td>1634.0</td>
+                <td>76.4%</td>
+                <td>64.3%</td>
+                <td class="high-prob">73.9% / 26.1%</td>
+                <td class="high-prob"><strong>WARRIORS ST-LAURENT</strong></td>
+            </tr>
+            <tr>
+                <td>#4378</td>
+                <td>2026-02-27 20:00</td>
+                <td>PETE MORIN</td>
+                <td>RAPIDES LACHINE</td>
+                <td>DIABLES M.R.O.</td>
+                <td>1467.6</td>
+                <td>1653.4</td>
+                <td>37.9%</td>
+                <td>32.0%</td>
+                <td class="medium-prob">36.7% / 63.3%</td>
+                <td class="medium-prob"><strong>DIABLES M.R.O.</strong></td>
+            </tr>
+            <tr>
+                <td>#4307</td>
+                <td>2026-02-16 20:00</td>
+                <td>PETE MORIN</td>
+                <td>KNIGHTS M.W.H.</td>
+                <td>RAPIDES LACHINE</td>
+                <td>1447.8</td>
+                <td>1467.6</td>
+                <td>61.3%</td>
+                <td>43.6%</td>
+                <td class="medium-prob">57.8% / 42.2%</td>
+                <td class="medium-prob"><strong>KNIGHTS M.W.H.</strong></td>
+            </tr>
+            <tr>
+                <td>#4311</td>
+                <td>2026-02-19 20:00</td>
+                <td>LEGION MEMORIAL RINK</td>
+                <td>KNIGHTS M.W.H.</td>
+                <td>PANTHERES LASALLE</td>
+                <td>1447.8</td>
+                <td>1606.6</td>
+                <td>41.6%</td>
+                <td>28.4%</td>
+                <td class="medium-prob">39.0% / 61.0%</td>
+                <td class="medium-prob"><strong>PANTHERES LASALLE</strong></td>
+            </tr>
+            <tr>
+                <td>#4318</td>
+                <td>2026-02-20 18:30</td>
+                <td>LEGION MEMORIAL RINK</td>
+                <td>KNIGHTS M.W.H.</td>
+                <td>BULLDOGS VERDUN</td>
+                <td>1447.8</td>
+                <td>1259.9</td>
+                <td>84.0%</td>
+                <td>81.4%</td>
+                <td class="high-prob">83.5% / 16.5%</td>
+                <td class="high-prob"><strong>KNIGHTS M.W.H.</strong></td>
+            </tr>
+            <tr>
+                <td>#4329</td>
+                <td>2026-02-22 13:00</td>
+                <td>DENIS-SAVARD</td>
+                <td>BULLDOGS VERDUN</td>
+                <td>KNIGHTS M.W.H.</td>
+                <td>1259.9</td>
+                <td>1447.8</td>
+                <td>37.6%</td>
+                <td>33.7%</td>
+                <td class="medium-prob">36.8% / 63.2%</td>
+                <td class="medium-prob"><strong>KNIGHTS M.W.H.</strong></td>
+            </tr>
+            <tr>
+                <td>#4351</td>
+                <td>2026-02-21 17:30</td>
+                <td>LOWER CANADA COLLEGE</td>
+                <td>KNIGHTS M.W.H.</td>
+                <td>DEVILS M.R.O.</td>
+                <td>1447.8</td>
+                <td>1634.0</td>
+                <td>37.8%</td>
+                <td>16.8%</td>
+                <td class="medium-prob">33.6% / 66.4%</td>
+                <td class="medium-prob"><strong>DEVILS M.R.O.</strong></td>
+            </tr>
+            <tr>
+                <td>#4390</td>
+                <td>2026-02-24 19:00</td>
+                <td>LEGION MEMORIAL RINK</td>
+                <td>KNIGHTS M.W.H.</td>
+                <td>DEVILS M.R.O.</td>
+                <td>1447.8</td>
+                <td>1634.0</td>
+                <td>37.8%</td>
+                <td>16.8%</td>
+                <td class="medium-prob">33.6% / 66.4%</td>
+                <td class="medium-prob"><strong>DEVILS M.R.O.</strong></td>
+            </tr>
+        </table>
+        
+        <div class="stats-summary">
+            <div class="stat-card">
+                <div class="stat-label">Total Predictions</div>
+                <div class="stat-value">14</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-label">Teams Tracked</div>
+                <div class="stat-value">9</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-label">Methodology</div>
+                <div class="stat-value">ELO + Pythagorean</div>
+            </div>
+        </div>
+        
+        <p style="margin-top: 30px; color: #666; font-size: 0.9em;">
+            <strong>Methodology:</strong> Predictions use a combination of ELO rating system and Pythagorean expectation.
+            ELO ratings are updated after each game based on results and margin of victory.
+            Pythagorean expectation estimates win probability based on goals scored vs. goals allowed.
+            Home advantage of +100 ELO points is included.
+        </p>
+    </div>
+</body>
+</html>

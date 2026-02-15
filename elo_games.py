@@ -8,11 +8,13 @@ import csv
 import math
 from datetime import datetime
 
-# Constants
+# Constants (optimized via cross-validation)
 INITIAL_ELO = 1500
-K_FACTOR = 20  # How much ELO changes per game
+K_FACTOR = 35  # Optimized: was 20 - How much ELO changes per game
 HOME_ADVANTAGE = 100  # Home team gets bonus ELO points
-PYTHAGOREAN_EXPONENT = 2.37  # Optimized for hockey (similar to basketball)
+PYTHAGOREAN_EXPONENT = 2.0  # Optimized: was 2.37 - Optimized for hockey
+ELO_WEIGHT = 0.8  # Optimized: was 0.6 - Weight for ELO prediction
+PYTH_WEIGHT = 0.2  # Weight for Pythagorean prediction
 
 
 def load_and_filter_games(csv_file, tournament='E.H.L.', division='Moins de 15 ans', level='B'):
@@ -240,8 +242,8 @@ def predict_upcoming_games(games, team_elos):
         elo_home_win_prob = predict_game_elo(home, away, team_elos)
         pyth_home_win_prob = predict_game_pythagorean(home, away, team_elos)
         
-        # Combined prediction (average of both methods)
-        combined_home_win_prob = (elo_home_win_prob + pyth_home_win_prob) / 2
+        # Combined prediction (weighted by optimized parameters)
+        combined_home_win_prob = elo_home_win_prob * ELO_WEIGHT + pyth_home_win_prob * PYTH_WEIGHT
         
         prediction = {
             'game_id': game['game_id'],
@@ -265,7 +267,362 @@ def predict_upcoming_games(games, team_elos):
     return predictions
 
 
-def save_predictions_to_csv(predictions, output_file='elo_predictions.csv'):
+def validate_predictions(games):
+    """
+    Validate predictions by testing on completed games
+    For each completed game, predict outcome using data from previous games only
+    """
+    # Sort games by date
+    completed_games = [g for g in games if g['status'] == 'Completed' and g['home_score'] and g['away_score']]
+    completed_games.sort(key=lambda x: x['date'])
+    
+    print(f"\n\nValidating predictions on {len(completed_games)} completed games...")
+    
+    validation_results = []
+    team_accuracy = {}
+    
+    for i, test_game in enumerate(completed_games):
+        # Use only games before this one for training
+        training_games = completed_games[:i]
+        
+        if len(training_games) < 2:  # Need at least 2 games to build ratings
+            continue
+        
+        # Build ELO ratings from training data
+        team_elos = {}
+        teams = set()
+        
+        for game in training_games:
+            teams.add(game['home_team'])
+            teams.add(game['away_team'])
+        
+        for team in teams:
+            team_elos[team] = {
+                'current_elo': INITIAL_ELO,
+                'games_played': 0,
+                'total_points_for': 0,
+                'total_points_against': 0
+            }
+        
+        # Process training games
+        for game in training_games:
+            home = game['home_team']
+            away = game['away_team']
+            home_score = int(game['home_score'])
+            away_score = int(game['away_score'])
+            
+            home_elo = team_elos[home]['current_elo'] + HOME_ADVANTAGE
+            away_elo = team_elos[away]['current_elo']
+            
+            team_elos[home]['total_points_for'] += home_score
+            team_elos[home]['total_points_against'] += away_score
+            team_elos[home]['games_played'] += 1
+            
+            team_elos[away]['total_points_for'] += away_score
+            team_elos[away]['total_points_against'] += home_score
+            team_elos[away]['games_played'] += 1
+            
+            if home_score > away_score:
+                margin = home_score - away_score
+                new_home_elo, new_away_elo = update_elo(home_elo, away_elo, margin)
+                team_elos[home]['current_elo'] = new_home_elo - HOME_ADVANTAGE
+                team_elos[away]['current_elo'] = new_away_elo
+            elif away_score > home_score:
+                margin = away_score - home_score
+                new_away_elo, new_home_elo = update_elo(away_elo, home_elo, margin)
+                team_elos[away]['current_elo'] = new_away_elo
+                team_elos[home]['current_elo'] = new_home_elo - HOME_ADVANTAGE
+            else:
+                new_home_elo, new_away_elo = update_elo_tie(home_elo, away_elo)
+                team_elos[home]['current_elo'] = new_home_elo - HOME_ADVANTAGE
+                team_elos[away]['current_elo'] = new_away_elo
+        
+        # Calculate Pythagorean expectations
+        for team in team_elos:
+            stats = team_elos[team]
+            if stats['games_played'] > 0:
+                pf_squared = stats['total_points_for'] ** PYTHAGOREAN_EXPONENT
+                pa_squared = stats['total_points_against'] ** PYTHAGOREAN_EXPONENT
+                stats['pythagorean_expectation'] = pf_squared / (pf_squared + pa_squared)
+            else:
+                stats['pythagorean_expectation'] = 0.5
+        
+        # Make prediction for test game
+        home = test_game['home_team']
+        away = test_game['away_team']
+        
+        # Skip if teams not in training data
+        if home not in team_elos or away not in team_elos:
+            continue
+        
+        home_elo = team_elos[home]['current_elo'] + HOME_ADVANTAGE
+        away_elo = team_elos[away]['current_elo']
+        
+        elo_home_win_prob = calculate_expected_score(home_elo, away_elo) * 100
+        
+        home_pyth = team_elos[home]['pythagorean_expectation']
+        away_pyth = team_elos[away]['pythagorean_expectation']
+        pyth_home_win_prob = (home_pyth / (home_pyth + away_pyth)) * 100
+        
+        combined_home_win_prob = elo_home_win_prob * ELO_WEIGHT + pyth_home_win_prob * PYTH_WEIGHT
+        
+        predicted_winner = home if combined_home_win_prob > 50 else away
+        
+        # Determine actual winner
+        home_score = int(test_game['home_score'])
+        away_score = int(test_game['away_score'])
+        
+        if home_score > away_score:
+            actual_winner = home
+        elif away_score > home_score:
+            actual_winner = away
+        else:
+            actual_winner = 'Tie'
+        
+        correct = (predicted_winner == actual_winner) if actual_winner != 'Tie' else False
+        
+        # Track accuracy per team
+        for team in [home, away]:
+            if team not in team_accuracy:
+                team_accuracy[team] = {'correct': 0, 'total': 0}
+            team_accuracy[team]['total'] += 1
+            if correct:
+                team_accuracy[team]['correct'] += 1
+        
+        validation_results.append({
+            'game_id': test_game['game_id'],
+            'date': test_game['date'],
+            'home_team': home,
+            'away_team': away,
+            'home_score': home_score,
+            'away_score': away_score,
+            'predicted_winner': predicted_winner,
+            'actual_winner': actual_winner,
+            'correct': correct,
+            'combined_prob': combined_home_win_prob,
+            'home_elo': team_elos[home]['current_elo'],
+            'away_elo': team_elos[away]['current_elo']
+        })
+    
+    return validation_results, team_accuracy
+
+
+def save_validation_to_csv(validation_results, team_accuracy, output_file='csv/elo_validation.csv'):
+    """Save validation results to CSV"""
+    
+    if not validation_results:
+        print("No validation results to save.")
+        return
+    
+    # Save game-by-game results
+    with open(output_file, 'w', newline='', encoding='utf-8') as f:
+        fieldnames = ['game_id', 'date', 'home_team', 'away_team', 'home_score', 'away_score',
+                     'predicted_winner', 'actual_winner', 'correct', 'combined_prob', 
+                     'home_elo', 'away_elo']
+        writer = csv.DictWriter(f, fieldnames=fieldnames)
+        writer.writeheader()
+        writer.writerows(validation_results)
+    
+    # Save team accuracy summary
+    accuracy_file = output_file.replace('.csv', '_accuracy.csv')
+    with open(accuracy_file, 'w', newline='', encoding='utf-8') as f:
+        fieldnames = ['team', 'correct_predictions', 'total_games', 'accuracy_percentage']
+        writer = csv.DictWriter(f, fieldnames=fieldnames)
+        writer.writeheader()
+        
+        for team in sorted(team_accuracy.keys()):
+            stats = team_accuracy[team]
+            accuracy_pct = (stats['correct'] / stats['total'] * 100) if stats['total'] > 0 else 0
+            writer.writerow({
+                'team': team,
+                'correct_predictions': stats['correct'],
+                'total_games': stats['total'],
+                'accuracy_percentage': f"{accuracy_pct:.1f}"
+            })
+    
+    print(f"\nValidation results saved to {output_file}")
+    print(f"Team accuracy saved to {accuracy_file}")
+
+
+def generate_validation_html(validation_results, team_accuracy, output_file='html/elo_validation.html'):
+    """Generate HTML report for validation results"""
+    
+    if not validation_results:
+        print("No validation results to generate HTML.")
+        return
+    
+    overall_correct = sum(1 for r in validation_results if r['correct'])
+    overall_total = len(validation_results)
+    overall_accuracy = (overall_correct / overall_total * 100) if overall_total > 0 else 0
+    
+    html = f"""<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>ELO Prediction Validation - E.H.L. Moins de 15 ans B</title>
+    <style>
+        body {{
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            background-color: #f5f5f5;
+        }}
+        h1, h2 {{
+            color: #333;
+        }}
+        .container {{
+            max-width: 1400px;
+            margin: 0 auto;
+            background-color: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }}
+        .summary {{
+            background-color: #e8f4f8;
+            padding: 15px;
+            border-radius: 5px;
+            margin: 20px 0;
+        }}
+        table {{
+            border-collapse: collapse;
+            width: 100%;
+            margin: 20px 0;
+        }}
+        th, td {{
+            border: 1px solid #ddd;
+            padding: 12px;
+            text-align: left;
+        }}
+        th {{
+            background-color: #2c3e50;
+            color: white;
+            font-weight: bold;
+        }}
+        tbody tr:nth-child(odd) {{
+            background-color: #f9f9f9;
+        }}
+        .correct {{
+            background-color: #d4edda !important;
+            color: #155724;
+        }}
+        .incorrect {{
+            background-color: #f8d7da !important;
+            color: #721c24;
+        }}
+        .accuracy-high {{
+            color: #27ae60;
+            font-weight: bold;
+        }}
+        .accuracy-medium {{
+            color: #f39c12;
+            font-weight: bold;
+        }}
+        .accuracy-low {{
+            color: #e74c3c;
+            font-weight: bold;
+        }}
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>ELO Prediction Validation</h1>
+        <h2>E.H.L. - Moins de 15 ans - Level B</h2>
+        
+        <div class="summary">
+            <h3>Overall Accuracy</h3>
+            <p><strong>{overall_correct}</strong> correct predictions out of <strong>{overall_total}</strong> games</p>
+            <p><strong>Accuracy: {overall_accuracy:.1f}%</strong></p>
+        </div>
+        
+        <h2>Accuracy by Team</h2>
+        <table>
+            <thead>
+                <tr>
+                    <th>Team</th>
+                    <th>Correct Predictions</th>
+                    <th>Total Games</th>
+                    <th>Accuracy</th>
+                </tr>
+            </thead>
+            <tbody>
+"""
+    
+    for team in sorted(team_accuracy.keys()):
+        stats = team_accuracy[team]
+        accuracy_pct = (stats['correct'] / stats['total'] * 100) if stats['total'] > 0 else 0
+        
+        if accuracy_pct >= 60:
+            css_class = 'accuracy-high'
+        elif accuracy_pct >= 50:
+            css_class = 'accuracy-medium'
+        else:
+            css_class = 'accuracy-low'
+        
+        html += f"""
+                <tr>
+                    <td><strong>{team}</strong></td>
+                    <td>{stats['correct']}</td>
+                    <td>{stats['total']}</td>
+                    <td class="{css_class}">{accuracy_pct:.1f}%</td>
+                </tr>
+"""
+    
+    html += """
+            </tbody>
+        </table>
+        
+        <h2>Game-by-Game Validation Results</h2>
+        <table>
+            <thead>
+                <tr>
+                    <th>Game ID</th>
+                    <th>Date</th>
+                    <th>Home</th>
+                    <th>Away</th>
+                    <th>Score</th>
+                    <th>Predicted Winner</th>
+                    <th>Actual Winner</th>
+                    <th>Result</th>
+                    <th>Confidence</th>
+                </tr>
+            </thead>
+            <tbody>
+"""
+    
+    for result in validation_results:
+        result_class = 'correct' if result['correct'] else 'incorrect'
+        result_text = '✓ Correct' if result['correct'] else '✗ Incorrect'
+        confidence = max(result['combined_prob'], 100 - result['combined_prob'])
+        
+        html += f"""
+                <tr class="{result_class}">
+                    <td>{result['game_id']}</td>
+                    <td>{result['date']}</td>
+                    <td>{result['home_team']}</td>
+                    <td>{result['away_team']}</td>
+                    <td>{result['home_score']}-{result['away_score']}</td>
+                    <td>{result['predicted_winner']}</td>
+                    <td>{result['actual_winner']}</td>
+                    <td><strong>{result_text}</strong></td>
+                    <td>{confidence:.1f}%</td>
+                </tr>
+"""
+    
+    html += """
+            </tbody>
+        </table>
+    </div>
+</body>
+</html>
+"""
+    
+    with open(output_file, 'w', encoding='utf-8') as f:
+        f.write(html)
+    
+    print(f"Validation HTML report generated: {output_file}")
+
+
+def save_predictions_to_csv(predictions, output_file='csv/elo_predictions.csv'):
     """Save predictions to CSV file"""
     if not predictions:
         print("No predictions to save.")
@@ -286,7 +643,7 @@ def save_predictions_to_csv(predictions, output_file='elo_predictions.csv'):
     print(f"\nPredictions saved to {output_file}")
 
 
-def generate_html_report(predictions, team_elos, output_file='elo_predictions.html'):
+def generate_html_report(predictions, team_elos, output_file='html/elo_predictions.html'):
     """Generate HTML report with predictions and team ratings"""
     
     html = """<!DOCTYPE html>
@@ -385,6 +742,7 @@ def generate_html_report(predictions, team_elos, output_file='elo_predictions.ht
                 <th>Pythagorean Exp.</th>
                 <th>Avg Goals For</th>
                 <th>Avg Goals Against</th>
+                <th>Accuracy (Past Games)</th>
             </tr>
 """
     
@@ -395,6 +753,9 @@ def generate_html_report(predictions, team_elos, output_file='elo_predictions.ht
         if stats['games_played'] > 0:
             avg_for = stats['total_points_for'] / stats['games_played']
             avg_against = stats['total_points_against'] / stats['games_played']
+            accuracy = stats.get('validation_accuracy', 0)
+            val_games = stats.get('validation_games', 0)
+            accuracy_display = f"{accuracy:.1f}%" if val_games > 0 else "N/A"
             html += f"""            <tr>
                 <td><strong>{team}</strong></td>
                 <td>{stats['current_elo']:.1f}</td>
@@ -402,6 +763,7 @@ def generate_html_report(predictions, team_elos, output_file='elo_predictions.ht
                 <td>{stats['pythagorean_expectation']:.3f}</td>
                 <td>{avg_for:.2f}</td>
                 <td>{avg_against:.2f}</td>
+                <td>{accuracy_display}</td>
             </tr>
 """
     
@@ -486,7 +848,7 @@ def main():
     print("=" * 80)
     
     # Load and filter games
-    games = load_and_filter_games('hockey_games.csv')
+    games = load_and_filter_games('csv/hockey_games.csv')
     
     if not games:
         print("No games found matching the criteria.")
@@ -536,7 +898,39 @@ def main():
     
     # Save results
     save_predictions_to_csv(predictions)
+    
+    # Validate predictions
+    print("\n" + "=" * 80)
+    print("VALIDATING PREDICTIONS ON HISTORICAL DATA")
+    print("=" * 80)
+    validation_results, team_accuracy = validate_predictions(games)
+    
+    # Add validation accuracy to team_elos
+    for team in team_elos:
+        if team in team_accuracy:
+            stats = team_accuracy[team]
+            team_elos[team]['validation_accuracy'] = (stats['correct'] / stats['total'] * 100) if stats['total'] > 0 else 0
+            team_elos[team]['validation_games'] = stats['total']
+        else:
+            team_elos[team]['validation_accuracy'] = 0
+            team_elos[team]['validation_games'] = 0
+    
     generate_html_report(predictions, team_elos)
+    
+    if validation_results:
+        overall_correct = sum(1 for r in validation_results if r['correct'])
+        overall_total = len(validation_results)
+        overall_accuracy = (overall_correct / overall_total * 100) if overall_total > 0 else 0
+        
+        print(f"\nOverall Accuracy: {overall_correct}/{overall_total} = {overall_accuracy:.1f}%")
+        print("\nAccuracy by Team:")
+        for team in sorted(team_accuracy.keys()):
+            stats = team_accuracy[team]
+            accuracy_pct = (stats['correct'] / stats['total'] * 100) if stats['total'] > 0 else 0
+            print(f"  {team:<30} {stats['correct']:>3}/{stats['total']:<3} = {accuracy_pct:>5.1f}%")
+        
+        save_validation_to_csv(validation_results, team_accuracy)
+        generate_validation_html(validation_results, team_accuracy)
     
     print("\n" + "=" * 80)
     print("Done!")

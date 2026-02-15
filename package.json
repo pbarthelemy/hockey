@@ -1,0 +1,21 @@
+{
+  "name": "hockey-scoresheet-analyzer",
+  "version": "1.0.0",
+  "description": "Hockey game scraper and analyzer for scoresheets.ca",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "nodemon server.js"
+  },
+  "keywords": ["hockey", "scoresheets", "analyzer"],
+  "author": "",
+  "license": "MIT",
+  "dependencies": {
+    "express": "^4.18.2",
+    "axios": "^1.6.0",
+    "cors": "^2.8.5"
+  },
+  "devDependencies": {
+    "nodemon": "^3.0.1"
+  }
+}

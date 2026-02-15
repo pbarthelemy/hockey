@@ -32,10 +32,10 @@ def scrape_games(tournament_id, division_id, level_id):
     data = response.json()
     
     # Save the raw response to a JSON file
-    with open('response_payload.json', 'w', encoding='utf-8') as f:
+    with open('csv/response_payload.json', 'w', encoding='utf-8') as f:
         json.dump(data, f, indent=2, ensure_ascii=False)
     
-    print(f"Response payload saved to response_payload.json")
+    print(f"Response payload saved to csv/response_payload.json")
     
     games = []
     
@@ -106,7 +106,7 @@ def scrape_games(tournament_id, division_id, level_id):
     
     return games
 
-def save_to_csv(games, filename='hockey_games.csv'):
+def save_to_csv(games, filename='csv/hockey_games.csv'):
     """Save games to CSV file"""
     
     if not games:
@@ -148,7 +148,7 @@ if __name__ == '__main__':
     print(f"Found {len(games)} games")
     
     if games:
-        save_to_csv(games, 'hockey_games.csv')
+        save_to_csv(games, 'csv/hockey_games.csv')
         print("Done!")
     else:
         print("No games to save")

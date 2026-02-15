@@ -1,0 +1,750 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hockey Game Analyzer</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f5f5f5;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            background-color: white;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        h1 {
+            color: #2c3e50;
+            margin-bottom: 30px;
+            text-align: center;
+        }
+
+        .controls {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
+            margin-bottom: 30px;
+            padding: 20px;
+            background-color: #f8f9fa;
+            border-radius: 5px;
+        }
+
+        .control-group {
+            flex: 1;
+            min-width: 200px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+            color: #555;
+        }
+
+        select {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 14px;
+        }
+
+        .button-group {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        button {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 4px;
+            font-size: 14px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+
+        .btn-primary {
+            background-color: #3498db;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background-color: #2980b9;
+        }
+
+        .btn-success {
+            background-color: #27ae60;
+            color: white;
+        }
+
+        .btn-success:hover {
+            background-color: #229954;
+        }
+
+        .btn-secondary {
+            background-color: #95a5a6;
+            color: white;
+        }
+
+        .btn-secondary:hover {
+            background-color: #7f8c8d;
+        }
+
+        button:disabled {
+            background-color: #bdc3c7;
+            cursor: not-allowed;
+        }
+
+        .status {
+            margin: 20px 0;
+            padding: 15px;
+            border-radius: 4px;
+            display: none;
+        }
+
+        .status.info {
+            background-color: #d6eaf8;
+            color: #1f618d;
+            border-left: 4px solid #3498db;
+        }
+
+        .status.success {
+            background-color: #d4edda;
+            color: #155724;
+            border-left: 4px solid #28a745;
+        }
+
+        .status.error {
+            background-color: #f8d7da;
+            color: #721c24;
+            border-left: 4px solid #dc3545;
+        }
+
+        .results {
+            margin-top: 30px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+            background-color: white;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        th, td {
+            border: 1px solid #ddd;
+            padding: 12px;
+            text-align: center;
+        }
+
+        th {
+            background-color: #2c3e50;
+            color: white;
+            font-weight: bold;
+            position: sticky;
+            top: 0;
+            z-index: 10;
+        }
+
+        tbody tr:nth-child(odd) {
+            background-color: #f9f9f9;
+        }
+
+        tbody tr:nth-child(even) {
+            background-color: #ffffff;
+        }
+
+        tbody th {
+            background-color: #34495e;
+            color: white;
+            font-weight: bold;
+            text-align: left;
+            position: sticky;
+            left: 0;
+            z-index: 5;
+        }
+
+        td {
+            min-width: 80px;
+        }
+
+        td:empty {
+            background-color: #ecf0f1;
+        }
+
+        .score-cell {
+            font-size: 12px;
+            line-height: 1.4;
+        }
+
+        .score {
+            display: block;
+            padding: 2px 0;
+        }
+
+        .win {
+            color: #27ae60;
+            font-weight: bold;
+        }
+
+        .loss {
+            color: #e74c3c;
+        }
+
+        .tie {
+            color: #f39c12;
+            font-weight: bold;
+        }
+
+        .upcoming {
+            color: #95a5a6;
+        }
+
+        .stats-summary {
+            margin: 20px 0;
+            padding: 15px;
+            background-color: #ecf0f1;
+            border-radius: 5px;
+        }
+
+        .stats-summary h3 {
+            margin-bottom: 10px;
+            color: #2c3e50;
+        }
+
+        .header-cell {
+            writing-mode: vertical-rl;
+            transform: rotate(180deg);
+            white-space: nowrap;
+            min-width: 40px;
+            padding: 10px 5px;
+        }
+
+        .loading {
+            display: none;
+            text-align: center;
+            padding: 20px;
+        }
+
+        .spinner {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #3498db;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🏒 Hockey Game Analyzer</h1>
+        
+        <div class="controls">
+            <div class="control-group">
+                <label for="tournament">Tournament:</label>
+                <select id="tournament">
+                    <option value="E.H.L." selected>E.H.L.</option>
+                </select>
+            </div>
+            
+            <div class="control-group">
+                <label for="division">Division:</label>
+                <select id="division">
+                    <option value="Moins de 15 ans" selected>Moins de 15 ans</option>
+                </select>
+            </div>
+            
+            <div class="control-group">
+                <label for="level">Level:</label>
+                <select id="level">
+                    <option value="B" selected>B</option>
+                </select>
+            </div>
+        </div>
+
+        <div class="button-group">
+            <button id="scrapeBtn" class="btn-primary">🔄 Scrape Data</button>
+            <div id="scrapeStatus" style="font-size: 0.85em; color: #666; margin-top: 5px;"></div>
+            <button id="analyzeBtn" class="btn-success">📊 Analyze & Predict</button>
+            <button id="validateBtn" class="btn-success">✓ Validate Predictions</button>
+            <button id="downloadBtn" class="btn-secondary">⬇️ Download CSV</button>
+        </div>
+
+        <div id="status" class="status"></div>
+        
+        <div id="loading" class="loading">
+            <div class="spinner"></div>
+            <p>Processing...</p>
+        </div>
+
+        <div id="results" class="results"></div>
+    </div>
+
+    <script>
+        const API_BASE = '';
+
+        // UI Elements
+        const scrapeBtn = document.getElementById('scrapeBtn');
+        const scrapeStatusDiv = document.getElementById('scrapeStatus');
+        const analyzeBtn = document.getElementById('analyzeBtn');
+        const validateBtn = document.getElementById('validateBtn');
+        const downloadBtn = document.getElementById('downloadBtn');
+        const statusDiv = document.getElementById('status');
+        const loadingDiv = document.getElementById('loading');
+        const resultsDiv = document.getElementById('results');
+        const tournamentSelect = document.getElementById('tournament');
+        const divisionSelect = document.getElementById('division');
+        const levelSelect = document.getElementById('level');
+
+        // Format date and time
+        function formatDateTime(timestamp) {
+            const date = new Date(timestamp);
+            const year = date.getFullYear();
+            const month = String(date.getMonth() + 1).padStart(2, '0');
+            const day = String(date.getDate()).padStart(2, '0');
+            const hours = String(date.getHours()).padStart(2, '0');
+            const minutes = String(date.getMinutes()).padStart(2, '0');
+            return `${year}-${month}-${day} at ${hours}:${minutes}`;
+        }
+
+        // Update scrape button status
+        async function updateScrapeStatus() {
+            try {
+                const response = await fetch(`${API_BASE}/api/scrape/status`);
+                const data = await response.json();
+                
+                if (!data.canFetch && data.nextAllowedTime) {
+                    scrapeBtn.disabled = true;
+                    scrapeBtn.style.opacity = '0.5';
+                    scrapeBtn.style.cursor = 'not-allowed';
+                    scrapeStatusDiv.textContent = `Next fetch allowed on ${formatDateTime(data.nextAllowedTime)}`;
+                    scrapeStatusDiv.style.color = '#e74c3c';
+                    
+                    // Set up interval to re-check when cooldown expires
+                    const timeUntilAllowed = data.nextAllowedTime - Date.now();
+                    if (timeUntilAllowed > 0) {
+                        setTimeout(updateScrapeStatus, timeUntilAllowed + 1000);
+                    }
+                } else {
+                    scrapeBtn.disabled = false;
+                    scrapeBtn.style.opacity = '1';
+                    scrapeBtn.style.cursor = 'pointer';
+                    scrapeStatusDiv.textContent = '';
+                }
+            } catch (error) {
+                console.error('Failed to check scrape status:', error);
+            }
+        }
+
+        // Show status message
+        function showStatus(message, type = 'info') {
+            statusDiv.textContent = message;
+            statusDiv.className = `status ${type}`;
+            statusDiv.style.display = 'block';
+            
+            if (type === 'success' || type === 'error') {
+                setTimeout(() => {
+                    statusDiv.style.display = 'none';
+                }, 5000);
+            }
+        }
+
+        // Show/hide loading
+        function setLoading(isLoading) {
+            loadingDiv.style.display = isLoading ? 'block' : 'none';
+            scrapeBtn.disabled = isLoading;
+            analyzeBtn.disabled = isLoading;
+            validateBtn.disabled = isLoading;
+        }
+
+        // Load filter options
+        async function loadFilters() {
+            try {
+                const response = await fetch(`${API_BASE}/api/filters`);
+                const data = await response.json();
+                
+                // Populate dropdowns
+                if (data.tournaments && data.tournaments.length > 0) {
+                    tournamentSelect.innerHTML = data.tournaments.map(t => 
+                        `<option value="${t}" ${t === 'E.H.L.' ? 'selected' : ''}>${t}</option>`
+                    ).join('');
+                }
+                
+                if (data.divisions && data.divisions.length > 0) {
+                    divisionSelect.innerHTML = data.divisions.map(d => 
+                        `<option value="${d}" ${d === 'Moins de 15 ans' ? 'selected' : ''}>${d}</option>`
+                    ).join('');
+                }
+                
+                if (data.levels && data.levels.length > 0) {
+                    levelSelect.innerHTML = data.levels.map(l => 
+                        `<option value="${l}" ${l === 'B' ? 'selected' : ''}>${l}</option>`
+                    ).join('');
+                }
+            } catch (error) {
+                console.log('Could not load filters, using defaults');
+            }
+        }
+
+        // Scrape data
+        scrapeBtn.addEventListener('click', async () => {
+            setLoading(true);
+            showStatus('Scraping data from scoresheets.ca...', 'info');
+            
+            try {
+                const response = await fetch(`${API_BASE}/api/scrape`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        tournamentId: 17,
+                        divisionId: 45,
+                        levelId: 6
+                    })
+                });
+                
+                const data = await response.json();
+                
+                if (data.success) {
+                    showStatus(`Successfully scraped ${data.count} games!`, 'success');
+                    await loadFilters();
+                    await updateScrapeStatus(); // Update button status after successful scrape
+                } else {
+                    showStatus(`Error: ${data.error || data.message}`, 'error');
+                }
+            } catch (error) {
+                showStatus(`Error: ${error.message}`, 'error');
+            } finally {
+                setLoading(false);
+            }
+        });
+
+        // Analyze and predict (combined action)
+        analyzeBtn.addEventListener('click', async () => {
+            setLoading(true);
+            resultsDiv.innerHTML = '';
+            
+            try {
+                // Step 1: Analyze games
+                showStatus('Step 1/2: Analyzing games...', 'info');
+                
+                const analyzeResponse = await fetch(`${API_BASE}/api/analyze`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        tournament: tournamentSelect.value,
+                        division: divisionSelect.value,
+                        level: levelSelect.value
+                    })
+                });
+                
+                const analyzeData = await analyzeResponse.json();
+                
+                if (!analyzeData.success) {
+                    showStatus(`Error: ${analyzeData.error}`, 'error');
+                    return;
+                }
+                
+                // Step 2: Predict with ELO
+                showStatus('Step 2/2: Calculating ELO predictions...', 'info');
+                
+                const predictResponse = await fetch(`${API_BASE}/api/predict`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        tournament: tournamentSelect.value,
+                        division: divisionSelect.value,
+                        level: levelSelect.value
+                    })
+                });
+                
+                const predictData = await predictResponse.json();
+                
+                if (!predictData.success) {
+                    showStatus(`Error: ${predictData.error}`, 'error');
+                    return;
+                }
+                
+                // Display both results
+                showStatus(`Complete! Found ${analyzeData.gameCount} games, ${predictData.predictionCount} predictions.`, 'success');
+                displayCombinedResults(analyzeData, predictData);
+                
+            } catch (error) {
+                showStatus(`Error: ${error.message}`, 'error');
+            } finally {
+                setLoading(false);
+            }
+        });
+
+        // Validate predictions
+        validateBtn.addEventListener('click', async () => {
+            setLoading(true);
+            resultsDiv.innerHTML = '';
+            showStatus('Validating predictions on historical data...', 'info');
+            
+            try {
+                const response = await fetch(`${API_BASE}/api/validate`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        tournament: tournamentSelect.value,
+                        division: divisionSelect.value,
+                        level: levelSelect.value
+                    })
+                });
+                
+                const data = await response.json();
+                
+                if (data.success) {
+                    showStatus(`Validation complete! Tested ${data.overallTotal} games with ${data.overallAccuracy.toFixed(1)}% accuracy.`, 'success');
+                    displayValidation(data);
+                } else {
+                    showStatus(`Error: ${data.error}`, 'error');
+                }
+            } catch (error) {
+                showStatus(`Error: ${error.message}`, 'error');
+            } finally {
+                setLoading(false);
+            }
+        });
+
+        // Download CSV
+        downloadBtn.addEventListener('click', () => {
+            window.location.href = `${API_BASE}/api/download/csv`;
+        });
+
+        // Get CSS class for score
+        function getScoreClass(score) {
+            if (score === '??-??') return 'upcoming';
+            
+            const parts = score.split('-');
+            if (parts.length !== 2) return '';
+            
+            const myScore = parseInt(parts[0]);
+            const oppScore = parseInt(parts[1]);
+            
+            if (myScore > oppScore) return 'win';
+            if (myScore < oppScore) return 'loss';
+            return 'tie';
+        }
+
+        // Display combined results (analysis + predictions)
+        function displayCombinedResults(analyzeData, predictData) {
+            let html = '';
+            
+            const { teamElos, predictions } = predictData;
+            const { teams, matrix, teamStats } = analyzeData;
+            
+            // 1. Team Results Matrix
+            if (teams.length > 0) {
+                html += '<h2>Team Results Matrix</h2>';
+                html += '<p style="font-size: 0.9em; color: #666; margin: 10px 0 20px 0;">';
+                html += 'Note: Scores show the row team first (e.g., row team score - opponent score), regardless of home/away status.';
+                html += '</p>';
+                html += '<table><thead><tr><th>Team</th>';
+                
+                teams.forEach(team => {
+                    html += `<th class="header-cell">${team}</th>`;
+                });
+                html += '</tr></thead><tbody>';
+                
+                teams.forEach(rowTeam => {
+                    html += `<tr><th>${rowTeam}</th>`;
+                    
+                    teams.forEach(colTeam => {
+                        if (rowTeam === colTeam) {
+                            html += '<td style="background-color: #34495e;"></td>';
+                        } else {
+                            const scores = matrix[rowTeam][colTeam] || [];
+                            if (scores.length === 0) {
+                                html += '<td></td>';
+                            } else {
+                                html += '<td class="score-cell">';
+                                scores.forEach(score => {
+                                    const cssClass = getScoreClass(score);
+                                    html += `<span class="score ${cssClass}">${score}</span>`;
+                                });
+                                html += '</td>';
+                            }
+                        }
+                    });
+                    
+                    html += '</tr>';
+                });
+                
+                html += '</tbody></table>';
+
+                // 2. Win/Loss/Tie Statistics
+                html += '<div class="stats-summary"><h2>Win/Loss/Tie Statistics</h2><table><thead><tr>';
+                html += '<th>Team</th><th>Wins</th><th>Losses</th><th>Ties</th><th>To Play</th></tr></thead><tbody>';
+                
+                teams.forEach(team => {
+                    const stats = teamStats[team];
+                    html += `<tr><th style="text-align:left;">${team}</th>`;
+                    html += `<td>${stats.wins}</td>`;
+                    html += `<td>${stats.losses}</td>`;
+                    html += `<td>${stats.ties}</td>`;
+                    html += `<td>${stats.to_play}</td></tr>`;
+                });
+                
+                html += '</tbody></table></div>';
+            }
+
+            // 3. Upcoming Game Predictions
+            if (predictions.length > 0) {
+                html += '<h2>Upcoming Game Predictions</h2>';
+                html += '<p style="font-size: 0.9em; color: #666; margin: 10px 0 20px 0;">';
+                html += 'Predictions use the ELO rating system (adapted from chess) combined with Pythagorean expectation (based on Nate Silver\'s work for baseball). ';
+                html += '<a href="https://medium.com/@sameerkoppolu/predicting-the-results-of-nba-matches-using-elo-rating-system-and-pythagorean-expectation-4b8ee6ec577" target="_blank" style="color: #3498db;">Learn more</a>';
+                html += '</p>';
+                html += '<table><thead><tr>';
+                html += '<th>Game ID</th><th>Date</th><th>Home Team</th><th>Away Team</th>';
+                html += '<th>Home ELO</th><th>Away ELO</th>';
+                html += '<th>ELO Win %</th><th>Pyth Win %</th><th>Combined Win %</th><th>Predicted Winner</th>';
+                html += '</tr></thead><tbody>';
+                
+                predictions.forEach(pred => {
+                    html += `<tr>`;
+                    html += `<td>${pred.game_id}</td>`;
+                    html += `<td>${pred.date}</td>`;
+                    html += `<td><strong>${pred.home_team}</strong></td>`;
+                    html += `<td><strong>${pred.away_team}</strong></td>`;
+                    html += `<td>${pred.home_elo.toFixed(1)}</td>`;
+                    html += `<td>${pred.away_elo.toFixed(1)}</td>`;
+                    html += `<td>${pred.elo_home_win_prob.toFixed(1)}% - ${(100 - pred.elo_home_win_prob).toFixed(1)}%</td>`;
+                    html += `<td>${pred.pyth_home_win_prob.toFixed(1)}% - ${(100 - pred.pyth_home_win_prob).toFixed(1)}%</td>`;
+                    html += `<td><strong>${pred.combined_home_win_prob.toFixed(1)}% - ${pred.combined_away_win_prob.toFixed(1)}%</strong></td>`;
+                    html += `<td><strong style="color: #27ae60;">${pred.predicted_winner}</strong></td>`;
+                    html += `</tr>`;
+                });
+                
+                html += '</tbody></table>';
+            }
+
+            // 4. Team ELO Ratings
+            html += '<div class="stats-summary"><h2>Team ELO Ratings</h2><table><thead><tr>';
+            html += '<th>Team</th><th>ELO Rating</th><th>Games Played</th><th>Pythagorean Exp.</th><th>Avg Goals For</th><th>Avg Goals Against</th><th>Accuracy (Past Games)</th></tr></thead><tbody>';
+            
+            const sortedTeams = Object.entries(teamElos).sort((a, b) => b[1].currentElo - a[1].currentElo);
+            
+            sortedTeams.forEach(([team, stats]) => {
+                const avgFor = stats.gamesPlayed > 0 ? (stats.totalPointsFor / stats.gamesPlayed).toFixed(2) : '0.00';
+                const avgAgainst = stats.gamesPlayed > 0 ? (stats.totalPointsAgainst / stats.gamesPlayed).toFixed(2) : '0.00';
+                const validationGames = stats.validationGames || 0;
+                const accuracyDisplay = validationGames > 0 ? `${stats.validationAccuracy.toFixed(1)}%` : 'N/A';
+                
+                html += `<tr><th style="text-align:left;">${team}</th>`;
+                html += `<td>${stats.currentElo.toFixed(1)}</td>`;
+                html += `<td>${stats.gamesPlayed}</td>`;
+                html += `<td>${stats.pythagoreanExpectation.toFixed(3)}</td>`;
+                html += `<td>${avgFor}</td>`;
+                html += `<td>${avgAgainst}</td>`;
+                html += `<td>${accuracyDisplay}</td></tr>`;
+            });
+            
+            html += '</tbody></table></div>';
+            
+            resultsDiv.innerHTML = html;
+        }
+
+        // Display validation results
+        function displayValidation(data) {
+            const { validationResults, teamAccuracy, overallCorrect, overallTotal, overallAccuracy } = data;
+            
+            let html = '<h2>Prediction Validation Results</h2>';
+            html += '<p style="font-size: 0.9em; color: #666; margin: 10px 0 20px 0;">';
+            html += 'Historical accuracy of predictions calculated using only data available before each game.';
+            html += '</p>';
+            
+            // Overall summary
+            html += '<div class="stats-summary">';
+            html += '<h3>Overall Accuracy</h3>';
+            html += `<p><strong>${overallCorrect}</strong> correct predictions out of <strong>${overallTotal}</strong> games</p>`;
+            html += `<p style="font-size: 1.5em; color: #27ae60;"><strong>${overallAccuracy.toFixed(1)}%</strong> accuracy</p>`;
+            html += '</div>';
+            
+            // Team accuracy
+            html += '<h3>Accuracy by Team</h3>';
+            html += '<table><thead><tr>';
+            html += '<th>Team</th><th>Correct Predictions</th><th>Total Games</th><th>Accuracy</th>';
+            html += '</tr></thead><tbody>';
+            
+            Object.keys(teamAccuracy).sort().forEach(team => {
+                const stats = teamAccuracy[team];
+                const accuracy = stats.total > 0 ? (stats.correct / stats.total * 100) : 0;
+                const color = accuracy >= 60 ? '#27ae60' : accuracy >= 50 ? '#f39c12' : '#e74c3c';
+                
+                html += `<tr><th style="text-align:left;">${team}</th>`;
+                html += `<td>${stats.correct}</td>`;
+                html += `<td>${stats.total}</td>`;
+                html += `<td style="color: ${color}; font-weight: bold;">${accuracy.toFixed(1)}%</td></tr>`;
+            });
+            
+            html += '</tbody></table>';
+            
+            // Game-by-game results
+            html += '<h3>Game-by-Game Validation</h3>';
+            html += '<table><thead><tr>';
+            html += '<th>Game ID</th><th>Date</th><th>Home</th><th>Away</th><th>Score</th>';
+            html += '<th>Predicted Winner</th><th>Actual Winner</th><th>Result</th><th>Confidence</th>';
+            html += '</tr></thead><tbody>';
+            
+            validationResults.forEach(result => {
+                const bgColor = result.correct ? '#d4edda' : '#f8d7da';
+                const resultText = result.correct ? '✓ Correct' : '✗ Incorrect';
+                const confidence = Math.max(result.combined_prob, 100 - result.combined_prob);
+                
+                html += `<tr style="background-color: ${bgColor};">`;
+                html += `<td>${result.game_id}</td>`;
+                html += `<td>${result.date}</td>`;
+                html += `<td>${result.home_team}</td>`;
+                html += `<td>${result.away_team}</td>`;
+                html += `<td><strong>${result.home_score}-${result.away_score}</strong></td>`;
+                html += `<td>${result.predicted_winner}</td>`;
+                html += `<td>${result.actual_winner}</td>`;
+                html += `<td><strong>${resultText}</strong></td>`;
+                html += `<td>${confidence.toFixed(1)}%</td>`;
+                html += `</tr>`;
+            });
+            
+            html += '</tbody></table>';
+            
+            resultsDiv.innerHTML = html;
+        }
+
+        // Initialize
+        loadFilters();
+        updateScrapeStatus(); // Check scrape status on page load
+    </script>
+</body>
+</html>
