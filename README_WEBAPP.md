@@ -2,6 +2,23 @@
 
 A single-page web application for scraping and analyzing hockey game data from scoresheets.ca.
 
+The game recap is another view of data otherwise available on scoresheets.
+
+All the code is AI-generated (I am not a developer myself). I did spot-check the outputs, they are bug-free, as far as I saw... well, I think so... hope so...assume so...
+
+The prediction piece is ... glorified guesswork.
+
+It is based on a adaptation of the ELO ranking method used in CHESS, followed by more algorithms used in professional Baseball/Basketball (from [Nate Silver](https://en.wikipedia.org/wiki/Nate_Silver) with summary in [a post on Medium](https://medium.com/@sameerkoppolu/predicting-the-results-of-nba-matches-using-elo-rating-system-and-pythagorean-expectation-4b8ee6ec577)). It seems fancy, legit, serious and autoritative math stuff, but I have no clue what I am talking about, to be honest.
+
+Do not trust the predictions blindly.
+
+ To start with, there are not enough games in our league for true statistical significance. That is a obvious, factual caveat.
+ 
+  And the formulae were adaptated from Basketball to Hockey by AI - I can not assess that for correctness (both the maths and the code are beyond my skillsets... 
+  For instance, the _Pythagorean exponent is set 2.0_ : I really have no clue what that means, but AI said that is the best value for Hockey... yeah, sure...). 
+
+Putting the puck in the net, and having fun doing it, that is all that matters, in the end! 
+
 ## Features
 
 - 🔄 Scrape game data from scoresheets.ca API with 1-hour rate limiting
@@ -17,12 +34,33 @@ A single-page web application for scraping and analyzing hockey game data from s
 
 ## Installation
 
+### Option 1: Local Installation
+
 1. Install dependencies:
 ```bash
 npm install
 ```
 
+### Option 2: Docker
+
+1. Build the Docker image:
+```bash
+docker build -t scoresheet-app .
+```
+
+2. Run the container:
+```bash
+docker run -p 3000:3000 -v $(pwd)/csv:/app/csv -v $(pwd)/html:/app/html scoresheet-app
+```
+
+Or use Docker Compose:
+```bash
+docker-compose up -d
+```
+
 ## Usage
+
+### Local Development
 
 1. Start the server:
 ```bash
@@ -37,6 +75,18 @@ npm run dev
 2. Open your browser to:
 ```
 http://localhost:3000
+```
+
+### Docker
+
+Access the application at:
+```
+http://localhost:3000
+```
+
+To stop the container:
+```bash
+docker-compose down
 ```
 
 ## How to Use

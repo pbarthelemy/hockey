@@ -1,0 +1,14 @@
+node_modules
+npm-debug.log
+.git
+.gitignore
+*.md
+ai_sessions
+csv/*.csv
+csv/*.json
+html/*.html
+response_payload.json
+*.py
+__pycache__
+.vscode
+.DS_Store

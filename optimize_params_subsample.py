@@ -1,11 +1,12 @@
 #!/usr/bin/env python3
 """
-Parameter Optimization Script
-Tests different combinations of ELO parameters to maximize prediction accuracy
+Parameter Optimization Script - SUBSAMPLE TEST
+Tests runtime on "Moins de 13 ans" and "Moins de 15 ans" divisions only
 """
 
 import csv
 import math
+import time
 from datetime import datetime
 from itertools import product
 
@@ -26,12 +27,10 @@ def read_games():
             games.append(row)
     return games
 
-def filter_games(games, tournament='E.H.L.', division='Moins de 15 ans', level='B'):
-    """Filter games by tournament, division, and level"""
+def filter_games_subsample(games):
+    """Filter games for subsample test - Moins de 13 ans and Moins de 15 ans"""
     return [g for g in games 
-            if g['tournament_name'] == tournament 
-            and g['division_name'] == division 
-            and g['level_name'] == level
+            if g['division_name'] in ['Moins de 13 ans', 'Moins de 15 ans']
             and g['status'] == 'Completed'
             and g['home_score'] and g['away_score']]
 
@@ -173,16 +172,13 @@ def validate_with_params(games, k_factor, home_advantage, pyth_exp, elo_weight):
     return accuracy, correct, total
 
 def optimize_parameters():
-    """Find optimal parameter combinations"""
+    """Find optimal parameter combinations - SUBSAMPLE TEST"""
     print("Loading games...")
     all_games = read_games()
-    # Filter only completed games with scores (no tournament/division/level filtering)
-    games = [g for g in all_games 
-             if g['status'] == 'Completed'
-             and g['home_score'] and g['away_score']]
+    games = filter_games_subsample(all_games)
     
-    print(f"Found {len(games)} completed games across ALL tournaments/divisions/levels")
-    print(f"\nTesting {len(K_FACTORS)} × {len(HOME_ADVANTAGES)} × {len(PYTHAGOREAN_EXPONENTS)} × {len(ELO_WEIGHTS)} = {len(K_FACTORS) * len(HOME_ADVANTAGES) * len(PYTHAGOREAN_EXPONENTS) * len(ELO_WEIGHTS)} combinations...\n")
+    print(f"Found {len(games)} completed games in 'Moins de 13 ans' and 'Moins de 15 ans'")
+    print(f"Testing {len(K_FACTORS)} × {len(HOME_ADVANTAGES)} × {len(PYTHAGOREAN_EXPONENTS)} × {len(ELO_WEIGHTS)} = {len(K_FACTORS) * len(HOME_ADVANTAGES) * len(PYTHAGOREAN_EXPONENTS) * len(ELO_WEIGHTS)} combinations...\n")
     
     best_accuracy = 0
     best_params = None
@@ -190,6 +186,8 @@ def optimize_parameters():
     
     total_combinations = len(K_FACTORS) * len(HOME_ADVANTAGES) * len(PYTHAGOREAN_EXPONENTS) * len(ELO_WEIGHTS)
     current = 0
+    
+    start_time = time.time()
     
     for k, home_adv, pyth_exp, elo_weight in product(K_FACTORS, HOME_ADVANTAGES, PYTHAGOREAN_EXPONENTS, ELO_WEIGHTS):
         current += 1
@@ -208,33 +206,53 @@ def optimize_parameters():
         if accuracy > best_accuracy:
             best_accuracy = accuracy
             best_params = (k, home_adv, pyth_exp, elo_weight)
-            print(f"[{current}/{total_combinations}] NEW BEST: K={k}, Home={home_adv}, Pyth={pyth_exp}, EloWeight={elo_weight:.1f} → {accuracy:.1f}% ({correct}/{total})")
+            elapsed = time.time() - start_time
+            print(f"[{current}/{total_combinations}] NEW BEST: K={k}, Home={home_adv}, Pyth={pyth_exp}, EloWeight={elo_weight:.1f} → {accuracy:.1f}% ({correct}/{total}) | Elapsed: {elapsed:.1f}s")
         elif current % 50 == 0:
-            print(f"[{current}/{total_combinations}] Progress... Current best: {best_accuracy:.1f}%")
+            elapsed = time.time() - start_time
+            print(f"[{current}/{total_combinations}] Progress... Current best: {best_accuracy:.1f}% | Elapsed: {elapsed:.1f}s")
+    
+    end_time = time.time()
+    total_time = end_time - start_time
     
     # Sort results by accuracy
     results.sort(key=lambda x: x['accuracy'], reverse=True)
     
     # Save results to CSV
-    with open('csv/optimization_results.csv', 'w', newline='', encoding='utf-8') as f:
+    with open('csv/optimization_results_subsample.csv', 'w', newline='', encoding='utf-8') as f:
         writer = csv.DictWriter(f, fieldnames=['k_factor', 'home_advantage', 'pyth_exponent', 'elo_weight', 'accuracy', 'correct', 'total'])
         writer.writeheader()
         writer.writerows(results)
     
     print(f"\n{'='*80}")
-    print("OPTIMIZATION COMPLETE")
+    print("SUBSAMPLE OPTIMIZATION COMPLETE")
     print(f"{'='*80}")
+    print(f"\nDataset: {len(games)} games (Moins de 13 ans + Moins de 15 ans)")
+    print(f"Time taken: {total_time:.1f} seconds ({total_time/60:.1f} minutes)")
+    print(f"Average per combination: {total_time/total_combinations:.2f} seconds")
     print(f"\nBest Parameters:")
     print(f"  K_FACTOR = {best_params[0]}")
     print(f"  HOME_ADVANTAGE = {best_params[1]}")
     print(f"  PYTHAGOREAN_EXPONENT = {best_params[2]}")
     print(f"  ELO_WEIGHT = {best_params[3]:.1f} (Pythagorean weight = {1-best_params[3]:.1f})")
     print(f"\nAccuracy: {best_accuracy:.1f}%")
+    
     print(f"\nTop 10 parameter combinations:")
     for i, result in enumerate(results[:10], 1):
         print(f"  {i}. K={result['k_factor']:2d}, Home={result['home_advantage']:3d}, Pyth={result['pyth_exponent']:.2f}, EloW={result['elo_weight']:.1f} → {result['accuracy']:.1f}%")
     
-    print(f"\nFull results saved to: csv/optimization_results.csv")
+    print(f"\nFull results saved to: csv/optimization_results_subsample.csv")
+    
+    # Extrapolate to full dataset
+    full_dataset_games = 1392
+    extrapolated_time = total_time * (full_dataset_games / len(games)) ** 2
+    print(f"\n{'='*80}")
+    print("FULL DATASET TIME ESTIMATE")
+    print(f"{'='*80}")
+    print(f"Subsample: {len(games)} games took {total_time:.1f}s ({total_time/60:.1f} min)")
+    print(f"Full dataset: {full_dataset_games} games")
+    print(f"Scaling factor: ({full_dataset_games}/{len(games)})² = {(full_dataset_games/len(games))**2:.2f}×")
+    print(f"Estimated time: {extrapolated_time:.1f}s = {extrapolated_time/60:.1f} min = {extrapolated_time/3600:.1f} hours")
     
     return best_params, best_accuracy
 
