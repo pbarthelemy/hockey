@@ -2,6 +2,11 @@
 
 A single-page web application for scraping and analyzing hockey game data from scoresheets.ca.
 
+**The web application is available [here](https://hockey-lz1x.onrender.com/).**
+
+If you get a black page with geeky messages, just wait 30 sec: the app will be back up soon... (the web site is hosted on the cheap by your humble...)
+
+
 The game recap is another view of data otherwise available on scoresheets.
 
 All the code is AI-generated (I am not a developer myself). I did spot-check the outputs, they are bug-free, as far as I saw... well, I think so... hope so...assume so...

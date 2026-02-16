@@ -170,6 +170,10 @@
             background-color: #ffffff;
         }
 
+        tbody tr.highlight-team {
+            border: 3px solid #e74c3c !important;
+        }
+
         tbody th {
             background-color: #34495e;
             color: white;
@@ -579,7 +583,8 @@
                 html += '</tr></thead><tbody>';
                 
                 teams.forEach(rowTeam => {
-                    html += `<tr><th>${rowTeam}</th>`;
+                    const highlightClass = rowTeam.includes('DIABLES M.R.O.') ? ' class="highlight-team"' : '';
+                    html += `<tr${highlightClass}><th>${rowTeam}</th>`;
                     
                     teams.forEach(colTeam => {
                         if (rowTeam === colTeam) {
@@ -610,7 +615,8 @@
                 
                 teams.forEach(team => {
                     const stats = teamStats[team];
-                    html += `<tr><th style="text-align:left;">${team}</th>`;
+                    const highlightClass = team.includes('DIABLES M.R.O.') ? ' class="highlight-team"' : '';
+                    html += `<tr${highlightClass}><th style="text-align:left;">${team}</th>`;
                     html += `<td>${stats.wins}</td>`;
                     html += `<td>${stats.losses}</td>`;
                     html += `<td>${stats.ties}</td>`;
@@ -634,7 +640,8 @@
                 html += '</tr></thead><tbody>';
                 
                 predictions.forEach(pred => {
-                    html += `<tr>`;
+                    const highlightClass = (pred.home_team.includes('DIABLES M.R.O.') || pred.away_team.includes('DIABLES M.R.O.')) ? ' class="highlight-team"' : '';
+                    html += `<tr${highlightClass}>`;
                     html += `<td>${pred.game_id}</td>`;
                     html += `<td>${pred.date}</td>`;
                     html += `<td><strong>${pred.home_team}</strong></td>`;
@@ -662,8 +669,9 @@
                 const avgAgainst = stats.gamesPlayed > 0 ? (stats.totalPointsAgainst / stats.gamesPlayed).toFixed(2) : '0.00';
                 const validationGames = stats.validationGames || 0;
                 const accuracyDisplay = validationGames > 0 ? `${stats.validationAccuracy.toFixed(1)}%` : 'N/A';
+                const highlightClass = team.includes('DIABLES M.R.O.') ? ' class="highlight-team"' : '';
                 
-                html += `<tr><th style="text-align:left;">${team}</th>`;
+                html += `<tr${highlightClass}><th style="text-align:left;">${team}</th>`;
                 html += `<td>${stats.currentElo.toFixed(1)}</td>`;
                 html += `<td>${stats.gamesPlayed}</td>`;
                 html += `<td>${stats.pythagoreanExpectation.toFixed(3)}</td>`;
@@ -703,8 +711,9 @@
                 const stats = teamAccuracy[team];
                 const accuracy = stats.total > 0 ? (stats.correct / stats.total * 100) : 0;
                 const color = accuracy >= 60 ? '#27ae60' : accuracy >= 50 ? '#f39c12' : '#e74c3c';
+                const highlightClass = team.includes('DIABLES M.R.O.') ? ' class="highlight-team"' : '';
                 
-                html += `<tr><th style="text-align:left;">${team}</th>`;
+                html += `<tr${highlightClass}><th style="text-align:left;">${team}</th>`;
                 html += `<td>${stats.correct}</td>`;
                 html += `<td>${stats.total}</td>`;
                 html += `<td style="color: ${color}; font-weight: bold;">${accuracy.toFixed(1)}%</td></tr>`;
@@ -723,8 +732,9 @@
                 const bgColor = result.correct ? '#d4edda' : '#f8d7da';
                 const resultText = result.correct ? '✓ Correct' : '✗ Incorrect';
                 const confidence = Math.max(result.combined_prob, 100 - result.combined_prob);
+                const highlightClass = (result.home_team.includes('DIABLES M.R.O.') || result.away_team.includes('DIABLES M.R.O.')) ? ' class="highlight-team"' : '';
                 
-                html += `<tr style="background-color: ${bgColor};">`;
+                html += `<tr${highlightClass} style="background-color: ${bgColor};">`;
                 html += `<td>${result.game_id}</td>`;
                 html += `<td>${result.date}</td>`;
                 html += `<td>${result.home_team}</td>`;
