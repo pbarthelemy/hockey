@@ -27,6 +27,7 @@ Putting the puck in the net, and having fun doing it, that is all that matters, 
 ## Features
 
 - 🔄 Scrape game data from scoresheets.ca API with 1-hour rate limiting
+- 🌐 Scrape game data from either scoresheets.ca or capitalhlc.com
 - 📊 Analyze games with interactive filters (tournament, division, level)
 - 📈 Display team results matrix showing all games
 - 📉 Statistics summary (wins, losses, ties, upcoming games)
@@ -96,17 +97,24 @@ docker-compose down
 
 ## How to Use
 
-1. **Scrape Data**: Click "Scrape Data" button to fetch the latest games from scoresheets.ca
+1. **Select Source**: Choose `scoresheets.ca` or `capitalhlc.com` from the source dropdown
+2. **Scrape Data**: Click "Scrape Data" button to fetch the latest games from the selected source
    - Note: Rate limited to once per hour for all users
    - Next allowed fetch time displayed below the button
-2. **Select Filters**: Choose Tournament, Division, and Level from the dropdowns
-3. **Analyze & Predict**: Click "Analyze & Predict" to generate:
+3. **Select Filters**: Choose Tournament, Division, and Level from the dropdowns
+4. **Analyze & Predict**: Click "Analyze & Predict" to generate:
    - Team results matrix with all game scores
    - Win/Loss/Tie statistics
    - ELO-based predictions for upcoming games
    - Team ELO ratings with historical prediction accuracy
-4. **Validate Predictions**: Click "Validate Predictions" to test accuracy on historical data
-5. **Download**: Click "Download CSV" to get the raw data file
+5. **Validate Predictions**: Click "Validate Predictions" to test accuracy on historical data
+6. **Download**: Click "Download CSV" to get the raw data file
+
+## Standalone scrapers
+
+- Node.js Capital scraper: `npm run scrape:capital`
+- Python generic scraper: `python3 scrape_games.py`
+- Python Capital wrapper: `python3 scrape_capital_games.py`
 
 ## Rate Limiting
 

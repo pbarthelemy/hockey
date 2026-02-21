@@ -268,9 +268,10 @@
         
         <div class="controls">
             <div class="control-group">
-                <label for="tournament">Tournament:</label>
-                <select id="tournament">
-                    <option value="E.H.L." selected>E.H.L.</option>
+                <label for="source">Source:</label>
+                <select id="source">
+                    <option value="scoresheets" selected>scoresheets.ca</option>
+                    <option value="capitalhlc">capitalhlc.com</option>
                 </select>
             </div>
             
@@ -319,9 +320,21 @@
         const statusDiv = document.getElementById('status');
         const loadingDiv = document.getElementById('loading');
         const resultsDiv = document.getElementById('results');
-        const tournamentSelect = document.getElementById('tournament');
+        const sourceSelect = document.getElementById('source');
         const divisionSelect = document.getElementById('division');
         const levelSelect = document.getElementById('level');
+        let selectedTournament = 'E.H.L.';
+
+        const SOURCE_DEFAULTS = {
+            scoresheets: {
+                tournamentId: 17,
+                divisionId: 45,
+                levelId: 6
+            },
+            capitalhlc: {
+                standingsUrl: 'https://www.capitalhlc.com/en/stats/standing.html?season=2750&subSeason=4834&category=6557'
+            }
+        };
 
         // Format date and time
         function formatDateTime(timestamp) {
@@ -337,7 +350,8 @@
         // Update scrape button status
         async function updateScrapeStatus() {
             try {
-                const response = await fetch(`${API_BASE}/api/scrape/status`);
+                const source = sourceSelect.value;
+                const response = await fetch(`${API_BASE}/api/scrape/status?source=${encodeURIComponent(source)}`);
                 const data = await response.json();
                 
                 if (!data.canFetch && data.nextAllowedTime) {
@@ -387,14 +401,15 @@
         // Load filter options
         async function loadFilters() {
             try {
-                const response = await fetch(`${API_BASE}/api/filters`);
+                const source = sourceSelect.value;
+                const response = await fetch(`${API_BASE}/api/filters?source=${encodeURIComponent(source)}`);
                 const data = await response.json();
                 
-                // Populate dropdowns
+                // Keep tournament internal (single-source dataset)
                 if (data.tournaments && data.tournaments.length > 0) {
-                    tournamentSelect.innerHTML = data.tournaments.map(t => 
-                        `<option value="${t}" ${t === 'E.H.L.' ? 'selected' : ''}>${t}</option>`
-                    ).join('');
+                    selectedTournament = data.tournaments.includes('E.H.L.')
+                        ? 'E.H.L.'
+                        : data.tournaments[0];
                 }
                 
                 if (data.divisions && data.divisions.length > 0) {
@@ -416,19 +431,22 @@
         // Scrape data
         scrapeBtn.addEventListener('click', async () => {
             setLoading(true);
-            showStatus('Scraping data from scoresheets.ca...', 'info');
+            const source = sourceSelect.value;
+            const sourceLabel = source === 'capitalhlc' ? 'capitalhlc.com' : 'scoresheets.ca';
+            showStatus(`Scraping data from ${sourceLabel}...`, 'info');
             
             try {
+                const payload = {
+                    source,
+                    ...(SOURCE_DEFAULTS[source] || {})
+                };
+
                 const response = await fetch(`${API_BASE}/api/scrape`, {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json'
                     },
-                    body: JSON.stringify({
-                        tournamentId: 17,
-                        divisionId: 45,
-                        levelId: 6
-                    })
+                    body: JSON.stringify(payload)
                 });
                 
                 const data = await response.json();
@@ -462,7 +480,8 @@
                         'Content-Type': 'application/json'
                     },
                     body: JSON.stringify({
-                        tournament: tournamentSelect.value,
+                        source: sourceSelect.value,
+                        tournament: selectedTournament,
                         division: divisionSelect.value,
                         level: levelSelect.value
                     })
@@ -484,7 +503,8 @@
                         'Content-Type': 'application/json'
                     },
                     body: JSON.stringify({
-                        tournament: tournamentSelect.value,
+                        source: sourceSelect.value,
+                        tournament: selectedTournament,
                         division: divisionSelect.value,
                         level: levelSelect.value
                     })
@@ -521,7 +541,8 @@
                         'Content-Type': 'application/json'
                     },
                     body: JSON.stringify({
-                        tournament: tournamentSelect.value,
+                        source: sourceSelect.value,
+                        tournament: selectedTournament,
                         division: divisionSelect.value,
                         level: levelSelect.value
                     })
@@ -544,7 +565,8 @@
 
         // Download CSV
         downloadBtn.addEventListener('click', () => {
-            window.location.href = `${API_BASE}/api/download/csv`;
+            const source = sourceSelect.value;
+            window.location.href = `${API_BASE}/api/download/csv?source=${encodeURIComponent(source)}`;
         });
 
         // Get CSS class for score
@@ -560,6 +582,12 @@
             if (myScore > oppScore) return 'win';
             if (myScore < oppScore) return 'loss';
             return 'tie';
+        }
+
+        // Highlight target teams across data sources (scoresheets + capitalhlc)
+        function isHighlightedTeam(teamName) {
+            const normalized = (teamName || '').toLowerCase();
+            return normalized.includes('diables m.r.o.') || normalized.includes('mro diables');
         }
 
         // Display combined results (analysis + predictions)
@@ -583,7 +611,7 @@
                 html += '</tr></thead><tbody>';
                 
                 teams.forEach(rowTeam => {
-                    const highlightClass = rowTeam.includes('DIABLES M.R.O.') ? ' class="highlight-team"' : '';
+                    const highlightClass = isHighlightedTeam(rowTeam) ? ' class="highlight-team"' : '';
                     html += `<tr${highlightClass}><th>${rowTeam}</th>`;
                     
                     teams.forEach(colTeam => {
@@ -615,7 +643,7 @@
                 
                 teams.forEach(team => {
                     const stats = teamStats[team];
-                    const highlightClass = team.includes('DIABLES M.R.O.') ? ' class="highlight-team"' : '';
+                    const highlightClass = isHighlightedTeam(team) ? ' class="highlight-team"' : '';
                     html += `<tr${highlightClass}><th style="text-align:left;">${team}</th>`;
                     html += `<td>${stats.wins}</td>`;
                     html += `<td>${stats.losses}</td>`;
@@ -640,7 +668,7 @@
                 html += '</tr></thead><tbody>';
                 
                 predictions.forEach(pred => {
-                    const highlightClass = (pred.home_team.includes('DIABLES M.R.O.') || pred.away_team.includes('DIABLES M.R.O.')) ? ' class="highlight-team"' : '';
+                    const highlightClass = (isHighlightedTeam(pred.home_team) || isHighlightedTeam(pred.away_team)) ? ' class="highlight-team"' : '';
                     html += `<tr${highlightClass}>`;
                     html += `<td>${pred.game_id}</td>`;
                     html += `<td>${pred.date}</td>`;
@@ -669,7 +697,7 @@
                 const avgAgainst = stats.gamesPlayed > 0 ? (stats.totalPointsAgainst / stats.gamesPlayed).toFixed(2) : '0.00';
                 const validationGames = stats.validationGames || 0;
                 const accuracyDisplay = validationGames > 0 ? `${stats.validationAccuracy.toFixed(1)}%` : 'N/A';
-                const highlightClass = team.includes('DIABLES M.R.O.') ? ' class="highlight-team"' : '';
+                const highlightClass = isHighlightedTeam(team) ? ' class="highlight-team"' : '';
                 
                 html += `<tr${highlightClass}><th style="text-align:left;">${team}</th>`;
                 html += `<td>${stats.currentElo.toFixed(1)}</td>`;
@@ -711,7 +739,7 @@
                 const stats = teamAccuracy[team];
                 const accuracy = stats.total > 0 ? (stats.correct / stats.total * 100) : 0;
                 const color = accuracy >= 60 ? '#27ae60' : accuracy >= 50 ? '#f39c12' : '#e74c3c';
-                const highlightClass = team.includes('DIABLES M.R.O.') ? ' class="highlight-team"' : '';
+                const highlightClass = isHighlightedTeam(team) ? ' class="highlight-team"' : '';
                 
                 html += `<tr${highlightClass}><th style="text-align:left;">${team}</th>`;
                 html += `<td>${stats.correct}</td>`;
@@ -732,7 +760,7 @@
                 const bgColor = result.correct ? '#d4edda' : '#f8d7da';
                 const resultText = result.correct ? '✓ Correct' : '✗ Incorrect';
                 const confidence = Math.max(result.combined_prob, 100 - result.combined_prob);
-                const highlightClass = (result.home_team.includes('DIABLES M.R.O.') || result.away_team.includes('DIABLES M.R.O.')) ? ' class="highlight-team"' : '';
+                const highlightClass = (isHighlightedTeam(result.home_team) || isHighlightedTeam(result.away_team)) ? ' class="highlight-team"' : '';
                 
                 html += `<tr${highlightClass} style="background-color: ${bgColor};">`;
                 html += `<td>${result.game_id}</td>`;
@@ -755,6 +783,11 @@
         // Initialize
         loadFilters();
         updateScrapeStatus(); // Check scrape status on page load
+        sourceSelect.addEventListener('change', async () => {
+            resultsDiv.innerHTML = '';
+            await loadFilters();
+            await updateScrapeStatus();
+        });
     </script>
 </body>
 </html>
