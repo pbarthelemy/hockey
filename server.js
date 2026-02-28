@@ -20,6 +20,7 @@ const PYTH_WEIGHT = 0.2;
 const SCRAPE_COOLDOWN_MS = 60 * 60 * 1000; // 1 hour in milliseconds
 const LAST_FETCH_FILE = 'csv/last_fetch_time.json';
 const DEFAULT_SOURCE = 'scoresheets';
+const SCORESHEETS_ARCHIVE_FILE = path.join('csv', 'hockey_games_scoresheets_archive.csv');
 
 function getSourceCsvPath(source = DEFAULT_SOURCE) {
     return path.join('csv', `hockey_games_${source}.csv`);
@@ -41,6 +42,61 @@ async function readGamesForSource(source = DEFAULT_SOURCE) {
 
         throw new Error(`No scraped data found for source '${source}'. Please scrape this source first.`);
     }
+}
+
+async function readScoresheetsArchiveGames() {
+    const csvContent = await fs.readFile(SCORESHEETS_ARCHIVE_FILE, 'utf-8');
+    return parseCSV(csvContent);
+}
+
+async function ensureScoresheetsArchiveGames() {
+    try {
+        const games = await readScoresheetsArchiveGames();
+        if (games.length > 0) {
+            return games;
+        }
+    } catch (error) {
+        // Archive does not exist yet, create it from source 1.
+    }
+
+    const { games } = await scrapeScoresheetsSource({
+        tournamentId: 17,
+        divisionId: 45,
+        levelId: 6
+    });
+
+    const csv = convertToCSV(games);
+    await fs.writeFile(SCORESHEETS_ARCHIVE_FILE, csv);
+    return games;
+}
+
+function mergeSeriesWithArchive(seriesGames, archiveGames, division, level, knownGamesOnly) {
+    const seriesKnownTeams = new Set();
+    seriesGames.forEach((g) => {
+        if (isKnownTeamName(g.home_team)) seriesKnownTeams.add(g.home_team);
+        if (isKnownTeamName(g.away_team)) seriesKnownTeams.add(g.away_team);
+    });
+
+    const archiveFiltered = archiveGames.filter((g) => {
+        const sameCategory = g.division_name === division && g.level_name === level;
+        if (!sameCategory) return false;
+
+        if (knownGamesOnly) {
+            return seriesKnownTeams.has(g.home_team) && seriesKnownTeams.has(g.away_team);
+        }
+
+        return true;
+    });
+
+    const dedup = new Map();
+    [...archiveFiltered, ...seriesGames].forEach((g) => {
+        const key = `${g.game_id}|${g.date}|${g.home_team}|${g.away_team}`;
+        if (!dedup.has(key)) {
+            dedup.set(key, g);
+        }
+    });
+
+    return Array.from(dedup.values());
 }
 
 // Middleware
@@ -104,6 +160,15 @@ app.post('/api/scrape', async (req, res) => {
         const csv = convertToCSV(games);
         await fs.writeFile(getSourceCsvPath(source), csv);
         await fs.writeFile('csv/hockey_games.csv', csv);
+
+        // Keep an archive snapshot of source 1 results for series predictions.
+        if (source === 'scoresheets') {
+            try {
+                await fs.access(SCORESHEETS_ARCHIVE_FILE);
+            } catch (error) {
+                await fs.writeFile(SCORESHEETS_ARCHIVE_FILE, csv);
+            }
+        }
         
         // Save last fetch timestamp
         const now = Date.now();
@@ -137,6 +202,8 @@ app.get('/api/filters', async (req, res) => {
     } catch (error) {
         if (source === 'capitalhlc') {
             res.json({ tournaments: ['Capital HLC'], divisions: ['U15 House'], levels: ['B'] });
+        } else if (source === 'scoresheets_series') {
+            res.json({ tournaments: ['E.H.L. - SÉRIES'], divisions: ['Moins de 15 ans'], levels: ['B'] });
         } else {
             res.json({ tournaments: ['E.H.L.'], divisions: ['Moins de 15 ans'], levels: ['B'] });
         }
@@ -146,15 +213,16 @@ app.get('/api/filters', async (req, res) => {
 // Analyze games and generate tables
 app.post('/api/analyze', async (req, res) => {
     try {
-        const { source = DEFAULT_SOURCE, tournament, division, level } = req.body;
+        const { source = DEFAULT_SOURCE, tournament, division, level, knownGamesOnly = false } = req.body;
         const allGames = await readGamesForSource(source);
         
         // Filter games
-        const games = allGames.filter(g => 
+        const filteredGames = allGames.filter(g => 
             g.tournament_name === tournament &&
             g.division_name === division &&
             g.level_name === level
         );
+        const games = applyKnownGamesOnly(filteredGames, source, knownGamesOnly);
         
         // Build team results matrix
         const { teams, matrix, teamStats } = buildTeamResultsMatrix(games);
@@ -168,6 +236,32 @@ app.post('/api/analyze', async (req, res) => {
         });
     } catch (error) {
         console.error('Analysis error:', error);
+        res.status(500).json({ success: false, error: error.message });
+    }
+});
+
+// Get raw games (used by tournament bracket page)
+app.get('/api/games', async (req, res) => {
+    try {
+        const source = (req.query.source || DEFAULT_SOURCE).toString();
+        const tournament = (req.query.tournament || '').toString();
+        const division = (req.query.division || '').toString();
+        const level = (req.query.level || '').toString();
+        const knownGamesOnly = String(req.query.knownGamesOnly || 'false').toLowerCase() === 'true';
+
+        const allGames = await readGamesForSource(source);
+        const filteredGames = allGames.filter((g) =>
+            (!tournament || g.tournament_name === tournament) &&
+            (!division || g.division_name === division) &&
+            (!level || g.level_name === level)
+        );
+
+        const games = applyKnownGamesOnly(filteredGames, source, knownGamesOnly)
+            .sort((a, b) => (a.date || '').localeCompare(b.date || ''));
+
+        res.json({ success: true, source, count: games.length, games });
+    } catch (error) {
+        console.error('Games endpoint error:', error);
         res.status(500).json({ success: false, error: error.message });
     }
 });
@@ -637,6 +731,22 @@ function isUpcomingStatus(status) {
     return !isCompletedStatus(status);
 }
 
+function isKnownTeamName(teamName) {
+    const normalized = normalizeWhitespace(teamName || '').toLowerCase();
+    return Boolean(normalized)
+        && !normalized.includes('gagnant')
+        && !normalized.includes('perdant')
+        && !normalized.includes('position');
+}
+
+function applyKnownGamesOnly(games, source, knownGamesOnly) {
+    if (source !== 'scoresheets_series' || !knownGamesOnly) {
+        return games;
+    }
+
+    return games.filter((g) => isKnownTeamName(g.home_team) && isKnownTeamName(g.away_team));
+}
+
 app.get('/api/download/csv', async (req, res) => {
     try {
         const source = (req.query.source || DEFAULT_SOURCE).toString();
@@ -1059,14 +1169,15 @@ function validatePredictions(games) {
 // Validate predictions endpoint
 app.post('/api/validate', async (req, res) => {
     try {
-        const { source = DEFAULT_SOURCE, tournament, division, level } = req.body;
+        const { source = DEFAULT_SOURCE, tournament, division, level, knownGamesOnly = false } = req.body;
         const allGames = await readGamesForSource(source);
         
-        const games = allGames.filter(g => 
+        const filteredGames = allGames.filter(g => 
             g.tournament_name === tournament &&
             g.division_name === division &&
             g.level_name === level
         );
+        const games = applyKnownGamesOnly(filteredGames, source, knownGamesOnly);
         
         const { validationResults, teamAccuracy } = validatePredictions(games);
         
@@ -1091,16 +1202,23 @@ app.post('/api/validate', async (req, res) => {
 // Predict with ELO
 app.post('/api/predict', async (req, res) => {
     try {
-        const { source = DEFAULT_SOURCE, tournament, division, level } = req.body;
+        const { source = DEFAULT_SOURCE, tournament, division, level, knownGamesOnly = false } = req.body;
         const allGames = await readGamesForSource(source);
         
-        const games = allGames.filter(g => 
+        const filteredGames = allGames.filter(g => 
             g.tournament_name === tournament &&
             g.division_name === division &&
             g.level_name === level
         );
+        const games = applyKnownGamesOnly(filteredGames, source, knownGamesOnly);
+
+        let gamesForRatings = games;
+        if (source === 'scoresheets_series') {
+            const archiveGames = await ensureScoresheetsArchiveGames();
+            gamesForRatings = mergeSeriesWithArchive(games, archiveGames, division, level, knownGamesOnly);
+        }
         
-        const teamElos = buildEloRatings(games);
+        const teamElos = buildEloRatings(gamesForRatings);
         const predictions = predictUpcomingGames(games, teamElos);
         
         // Add validation accuracy to teamElos

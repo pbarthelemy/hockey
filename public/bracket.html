@@ -1,0 +1,356 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Tournament Bracket</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 0; background: #f5f6fa; color: #222; }
+        .container { max-width: 1600px; margin: 0 auto; padding: 20px; }
+        h1 { margin: 0 0 16px 0; }
+        .controls { display: flex; gap: 12px; flex-wrap: wrap; align-items: end; background: #fff; padding: 14px; border-radius: 8px; }
+        .control-group { min-width: 220px; }
+        label { display: block; font-size: 13px; margin-bottom: 6px; color: #555; }
+        select, button, input[type="checkbox"] { font-size: 14px; }
+        select, button { padding: 8px 10px; }
+        button { border: 1px solid #d0d7de; border-radius: 6px; background: #fff; cursor: pointer; }
+        button:hover { background: #f2f3f5; }
+        .status { margin: 12px 0; min-height: 20px; }
+        .card { margin-top: 12px; background: #fff; border-radius: 8px; padding: 12px; overflow: auto; }
+        svg { background: #fff; }
+        .small { color: #666; font-size: 12px; }
+        .links { margin-top: 8px; }
+        .links a { color: #2d6cdf; text-decoration: none; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🏆 Series Bracket (SÉRIES)</h1>
+
+        <div class="controls">
+            <div class="control-group">
+                <label for="tournament">Tournament</label>
+                <select id="tournament"></select>
+            </div>
+            <div class="control-group">
+                <label for="division">Division</label>
+                <select id="division"></select>
+            </div>
+            <div class="control-group">
+                <label for="level">Level</label>
+                <select id="level"></select>
+            </div>
+            <div class="control-group" style="min-width:360px;">
+                <button id="renderBtn">Render Bracket</button>
+                <button id="downloadSvgBtn">Download SVG</button>
+                <button id="downloadPngBtn">Download PNG</button>
+            </div>
+        </div>
+
+        <div class="status" id="status"></div>
+        <div class="card">
+            <div id="svgContainer"></div>
+        </div>
+
+        <div class="links small">
+            <a href="/">← Back to analyzer</a>
+        </div>
+    </div>
+
+    <script>
+        const SOURCE = 'scoresheets_series';
+        const API_BASE = '';
+
+        const tournamentEl = document.getElementById('tournament');
+        const divisionEl = document.getElementById('division');
+        const levelEl = document.getElementById('level');
+        const renderBtn = document.getElementById('renderBtn');
+        const downloadSvgBtn = document.getElementById('downloadSvgBtn');
+        const downloadPngBtn = document.getElementById('downloadPngBtn');
+        const statusEl = document.getElementById('status');
+        const svgContainer = document.getElementById('svgContainer');
+
+        function setStatus(text, isError = false) {
+            statusEl.textContent = text;
+            statusEl.style.color = isError ? '#b00020' : '#333';
+        }
+
+        function extractRef(teamName) {
+            const m = String(teamName || '').match(/(gagnant|perdant|position)\s*#?\s*(\d+)/i);
+            if (!m) return null;
+            return { type: m[1].toLowerCase(), id: m[2] };
+        }
+
+        function gameIdToNum(gameId) {
+            const m = String(gameId || '').match(/#?(\d+)/);
+            return m ? m[1] : '';
+        }
+
+        function buildBracket(games) {
+            const nodes = games.map((g, i) => {
+                const idNum = gameIdToNum(g.game_id) || `x${i}`;
+                const homeRef = extractRef(g.home_team);
+                const awayRef = extractRef(g.away_team);
+                return {
+                    id: idNum,
+                    game: g,
+                    depLinks: [
+                        homeRef ? { ...homeRef, slot: 'home' } : null,
+                        awayRef ? { ...awayRef, slot: 'away' } : null
+                    ].filter(Boolean)
+                };
+            });
+
+            const byId = new Map(nodes.map(n => [n.id, n]));
+            const depthMemo = new Map();
+
+            function depthOf(id, visiting = new Set()) {
+                if (depthMemo.has(id)) return depthMemo.get(id);
+                const n = byId.get(id);
+                if (!n) return 0;
+                if (visiting.has(id)) return 0;
+                visiting.add(id);
+                let d = 0;
+                for (const dep of n.depLinks) {
+                    if (byId.has(dep.id)) d = Math.max(d, depthOf(dep.id, visiting) + 1);
+                }
+                visiting.delete(id);
+                depthMemo.set(id, d);
+                return d;
+            }
+
+            for (const n of nodes) depthOf(n.id);
+
+            const columns = new Map();
+            for (const n of nodes) {
+                const d = depthMemo.get(n.id) || 0;
+                if (!columns.has(d)) columns.set(d, []);
+                columns.get(d).push(n);
+            }
+
+            for (const arr of columns.values()) {
+                arr.sort((a, b) => String(a.game.date || '').localeCompare(String(b.game.date || '')));
+            }
+
+            const colKeys = Array.from(columns.keys()).sort((a, b) => a - b);
+            const maxRows = Math.max(1, ...Array.from(columns.values()).map(v => v.length));
+            const columnWidth = 310;
+            const rowHeight = 120;
+            const specialVerticalOrder = ['14312', '14313', '14314', '14315'];
+            const invertIncomingFor = new Set(['14313', '14314']);
+            const specialPaddingRows = 3;
+            const width = (colKeys.length + 1) * columnWidth;
+            const height = (maxRows + 1 + specialPaddingRows) * rowHeight;
+
+            const position = new Map();
+            for (const col of colKeys) {
+                const arr = columns.get(col);
+                arr.forEach((n, i) => {
+                    position.set(n.id, { x: 30 + col * columnWidth, y: 30 + i * rowHeight });
+                });
+            }
+
+            // Manual layout tweak for lower-final rounds so connectors do not run behind boxes.
+            // Keep x by round, but move these games lower with fixed vertical order.
+            const specialBaseRow = Math.max(0, maxRows - 2);
+            specialVerticalOrder.forEach((id, idx) => {
+                const p = position.get(id);
+                if (!p) return;
+                position.set(id, { x: p.x, y: 30 + (specialBaseRow + idx) * rowHeight });
+            });
+
+            const palette = [
+                '#ffd6e7', '#cfe9ff', '#d6f5dd', '#ffe6c7', '#ead7ff', '#c9f6ff',
+                '#e4f7c9', '#ddd9ff', '#d9e3ff', '#fff2ba', '#ffd9cf', '#c9f3eb'
+            ];
+
+            function darkenHex(hex, factor = 0.72) {
+                const h = String(hex || '').replace('#', '');
+                if (h.length !== 6) return '#9aa3b2';
+                const r = Math.max(0, Math.min(255, Math.round(parseInt(h.slice(0, 2), 16) * factor)));
+                const g = Math.max(0, Math.min(255, Math.round(parseInt(h.slice(2, 4), 16) * factor)));
+                const b = Math.max(0, Math.min(255, Math.round(parseInt(h.slice(4, 6), 16) * factor)));
+                return `#${r.toString(16).padStart(2, '0')}${g.toString(16).padStart(2, '0')}${b.toString(16).padStart(2, '0')}`;
+            }
+
+            const colorById = new Map();
+            const lineColorById = new Map();
+            nodes.forEach((n, idx) => {
+                const fill = palette[idx % palette.length];
+                colorById.set(n.id, fill);
+                lineColorById.set(n.id, darkenHex(fill));
+            });
+
+            const ns = 'http://www.w3.org/2000/svg';
+            const svg = document.createElementNS(ns, 'svg');
+            svg.setAttribute('xmlns', ns);
+            svg.setAttribute('width', width);
+            svg.setAttribute('height', height);
+            svg.setAttribute('viewBox', `0 0 ${width} ${height}`);
+
+            // links first
+            for (const n of nodes) {
+                const p2 = position.get(n.id);
+                if (!p2) continue;
+                for (const dep of n.depLinks) {
+                    const p1 = position.get(dep.id);
+                    if (!p1) continue;
+                    const y1 = dep.type === 'perdant' ? (p1.y + 56) : (p1.y + 28);
+                    const x1 = p1.x + 240;
+                    const incomingSlot = invertIncomingFor.has(n.id)
+                        ? (dep.slot === 'away' ? 'home' : 'away')
+                        : dep.slot;
+                    const y2 = incomingSlot === 'away' ? (p2.y + 56) : (p2.y + 28);
+                    const x2 = p2.x;
+                    const c1 = x1 + 35;
+                    const c2 = x2 - 35;
+                    const path = document.createElementNS(ns, 'path');
+                    path.setAttribute('d', `M ${x1} ${y1} C ${c1} ${y1}, ${c2} ${y2}, ${x2} ${y2}`);
+                    path.setAttribute('fill', 'none');
+                    path.setAttribute('stroke', lineColorById.get(dep.id) || '#9aa3b2');
+                    path.setAttribute('stroke-width', '4');
+                    svg.appendChild(path);
+                }
+            }
+
+            // nodes
+            for (const n of nodes) {
+                const p = position.get(n.id);
+                if (!p) continue;
+
+                const rect = document.createElementNS(ns, 'rect');
+                rect.setAttribute('x', p.x);
+                rect.setAttribute('y', p.y);
+                rect.setAttribute('rx', '8');
+                rect.setAttribute('ry', '8');
+                rect.setAttribute('width', '240');
+                rect.setAttribute('height', '84');
+                const boxColor = colorById.get(n.id) || '#f8f9fb';
+                rect.setAttribute('fill', boxColor);
+                rect.setAttribute('stroke', lineColorById.get(n.id) || '#9aa3b2');
+                rect.setAttribute('stroke-width', '3');
+                svg.appendChild(rect);
+
+                const lines = [
+                    `${n.game.game_id || '#?'}  ${n.game.date || ''}`,
+                    `${n.game.home_team || ''} ${n.game.home_score ? '(' + n.game.home_score + ')' : ''}`,
+                    `${n.game.away_team || ''} ${n.game.away_score ? '(' + n.game.away_score + ')' : ''}`,
+                    `${n.game.location_name || ''}`
+                ];
+
+                lines.forEach((text, idx) => {
+                    const t = document.createElementNS(ns, 'text');
+                    t.setAttribute('x', p.x + 10);
+                    t.setAttribute('y', p.y + 18 + idx * 17);
+                    t.setAttribute('font-size', idx === 0 ? '11' : '12');
+                    t.setAttribute('font-family', 'Arial, sans-serif');
+                    t.setAttribute('fill', idx === 0 ? '#444' : '#1f2937');
+                    t.textContent = text.slice(0, 42);
+                    svg.appendChild(t);
+                });
+            }
+
+            return svg;
+        }
+
+        async function loadFilters() {
+            const response = await fetch(`${API_BASE}/api/filters?source=${SOURCE}`);
+            const data = await response.json();
+
+            tournamentEl.innerHTML = (data.tournaments || []).map(t => `<option value="${t}">${t}</option>`).join('');
+            divisionEl.innerHTML = (data.divisions || []).map(d => `<option value="${d}">${d}</option>`).join('');
+            levelEl.innerHTML = (data.levels || []).map(l => `<option value="${l}">${l}</option>`).join('');
+
+            const preferredTournament = 'E.H.L. - SÉRIES';
+            const preferredDivision = 'Moins de 15 ans';
+            const preferredLevel = 'B';
+            if ([...tournamentEl.options].some(o => o.value === preferredTournament)) tournamentEl.value = preferredTournament;
+            if ([...divisionEl.options].some(o => o.value === preferredDivision)) divisionEl.value = preferredDivision;
+            if ([...levelEl.options].some(o => o.value === preferredLevel)) levelEl.value = preferredLevel;
+        }
+
+        async function renderBracket() {
+            setStatus('Loading games...');
+            const query = new URLSearchParams({
+                source: SOURCE,
+                tournament: tournamentEl.value,
+                division: divisionEl.value,
+                level: levelEl.value
+            });
+
+            const response = await fetch(`${API_BASE}/api/games?${query.toString()}`);
+            const data = await response.json();
+            if (!data.success) {
+                setStatus(data.error || 'Failed to load games', true);
+                return;
+            }
+
+            const svg = buildBracket(data.games || []);
+            svg.id = 'tournamentSvg';
+            svgContainer.innerHTML = '';
+            svgContainer.appendChild(svg);
+            setStatus(`Rendered bracket with ${data.count} games.`);
+        }
+
+        function downloadSvg() {
+            const svg = document.getElementById('tournamentSvg');
+            if (!svg) return;
+            const serializer = new XMLSerializer();
+            const content = serializer.serializeToString(svg);
+            const blob = new Blob([content], { type: 'image/svg+xml;charset=utf-8' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'tournament_bracket.svg';
+            document.body.appendChild(a);
+            a.click();
+            a.remove();
+            URL.revokeObjectURL(url);
+        }
+
+        function downloadPng() {
+            const svg = document.getElementById('tournamentSvg');
+            if (!svg) return;
+            const serializer = new XMLSerializer();
+            const content = serializer.serializeToString(svg);
+            const blob = new Blob([content], { type: 'image/svg+xml;charset=utf-8' });
+            const url = URL.createObjectURL(blob);
+            const img = new Image();
+            img.onload = () => {
+                const canvas = document.createElement('canvas');
+                canvas.width = img.width;
+                canvas.height = img.height;
+                const ctx = canvas.getContext('2d');
+                ctx.fillStyle = '#ffffff';
+                ctx.fillRect(0, 0, canvas.width, canvas.height);
+                ctx.drawImage(img, 0, 0);
+                canvas.toBlob((pngBlob) => {
+                    const pngUrl = URL.createObjectURL(pngBlob);
+                    const a = document.createElement('a');
+                    a.href = pngUrl;
+                    a.download = 'tournament_bracket.png';
+                    document.body.appendChild(a);
+                    a.click();
+                    a.remove();
+                    URL.revokeObjectURL(pngUrl);
+                }, 'image/png');
+                URL.revokeObjectURL(url);
+            };
+            img.src = url;
+        }
+
+        renderBtn.addEventListener('click', renderBracket);
+        downloadSvgBtn.addEventListener('click', downloadSvg);
+        downloadPngBtn.addEventListener('click', downloadPng);
+
+        (async function init() {
+            try {
+                await loadFilters();
+                await renderBracket();
+            } catch (e) {
+                setStatus(e.message || 'Initialization error', true);
+            }
+        })();
+    </script>
+</body>
+</html>

@@ -271,6 +271,7 @@
                 <label for="source">Source:</label>
                 <select id="source">
                     <option value="scoresheets" selected>scoresheets.ca</option>
+                    <option value="scoresheets_series">scoresheets.ca (SÉRIES)</option>
                     <option value="capitalhlc">capitalhlc.com</option>
                 </select>
             </div>
@@ -288,6 +289,17 @@
                     <option value="B" selected>B</option>
                 </select>
             </div>
+
+            <div class="control-group" id="knownGamesOnlyGroup" style="display: none; min-width: 260px;">
+                <label style="display: flex; align-items: center; gap: 8px; margin-top: 24px; font-weight: normal;">
+                    <input type="checkbox" id="knownGamesOnly" checked />
+                    Known games only
+                </label>
+            </div>
+        </div>
+
+        <div style="margin-top: -16px; margin-bottom: 18px;">
+            <a href="/bracket.html" style="color: #3498db; text-decoration: none; font-weight: bold;">🏆 Open Series Bracket (SÉRIES)</a>
         </div>
 
         <div class="button-group">
@@ -296,6 +308,7 @@
             <button id="analyzeBtn" class="btn-success">📊 Analyze & Predict</button>
             <button id="validateBtn" class="btn-success">✓ Validate Predictions</button>
             <button id="downloadBtn" class="btn-secondary">⬇️ Download CSV</button>
+            <button id="bracketBtn" class="btn-secondary">🏆 Tournament Bracket</button>
         </div>
 
         <div id="status" class="status"></div>
@@ -317,12 +330,15 @@
         const analyzeBtn = document.getElementById('analyzeBtn');
         const validateBtn = document.getElementById('validateBtn');
         const downloadBtn = document.getElementById('downloadBtn');
+        const bracketBtn = document.getElementById('bracketBtn');
         const statusDiv = document.getElementById('status');
         const loadingDiv = document.getElementById('loading');
         const resultsDiv = document.getElementById('results');
         const sourceSelect = document.getElementById('source');
         const divisionSelect = document.getElementById('division');
         const levelSelect = document.getElementById('level');
+        const knownGamesOnlyGroup = document.getElementById('knownGamesOnlyGroup');
+        const knownGamesOnlyCheckbox = document.getElementById('knownGamesOnly');
         let selectedTournament = 'E.H.L.';
 
         const SOURCE_DEFAULTS = {
@@ -331,9 +347,26 @@
                 divisionId: 45,
                 levelId: 6
             },
+            scoresheets_series: {
+                tournamentId: 23,
+                divisionId: 45,
+                levelId: 6
+            },
             capitalhlc: {
                 standingsUrl: 'https://www.capitalhlc.com/en/stats/standing.html?season=2750&subSeason=4834&category=6557'
             }
+        };
+
+        const SOURCE_LABELS = {
+            scoresheets: 'scoresheets.ca',
+            scoresheets_series: 'scoresheets.ca (SÉRIES)',
+            capitalhlc: 'capitalhlc.com'
+        };
+
+        const SOURCE_PREFERRED_TOURNAMENTS = {
+            scoresheets: 'E.H.L.',
+            scoresheets_series: 'E.H.L. - SÉRIES',
+            capitalhlc: 'Capital HLC'
         };
 
         // Format date and time
@@ -398,6 +431,15 @@
             validateBtn.disabled = isLoading;
         }
 
+        function isKnownGamesOnlyEnabled() {
+            return sourceSelect.value === 'scoresheets_series' && knownGamesOnlyCheckbox.checked;
+        }
+
+        function updateSourceSpecificControls() {
+            const isSeries = sourceSelect.value === 'scoresheets_series';
+            knownGamesOnlyGroup.style.display = isSeries ? 'block' : 'none';
+        }
+
         // Load filter options
         async function loadFilters() {
             try {
@@ -407,8 +449,11 @@
                 
                 // Keep tournament internal (single-source dataset)
                 if (data.tournaments && data.tournaments.length > 0) {
-                    selectedTournament = data.tournaments.includes('E.H.L.')
-                        ? 'E.H.L.'
+                    const source = sourceSelect.value;
+                    const preferred = SOURCE_PREFERRED_TOURNAMENTS[source] || 'E.H.L.';
+
+                    selectedTournament = data.tournaments.includes(preferred)
+                        ? preferred
                         : data.tournaments[0];
                 }
                 
@@ -432,7 +477,7 @@
         scrapeBtn.addEventListener('click', async () => {
             setLoading(true);
             const source = sourceSelect.value;
-            const sourceLabel = source === 'capitalhlc' ? 'capitalhlc.com' : 'scoresheets.ca';
+            const sourceLabel = SOURCE_LABELS[source] || source;
             showStatus(`Scraping data from ${sourceLabel}...`, 'info');
             
             try {
@@ -483,7 +528,8 @@
                         source: sourceSelect.value,
                         tournament: selectedTournament,
                         division: divisionSelect.value,
-                        level: levelSelect.value
+                        level: levelSelect.value,
+                        knownGamesOnly: isKnownGamesOnlyEnabled()
                     })
                 });
                 
@@ -506,7 +552,8 @@
                         source: sourceSelect.value,
                         tournament: selectedTournament,
                         division: divisionSelect.value,
-                        level: levelSelect.value
+                        level: levelSelect.value,
+                        knownGamesOnly: isKnownGamesOnlyEnabled()
                     })
                 });
                 
@@ -544,7 +591,8 @@
                         source: sourceSelect.value,
                         tournament: selectedTournament,
                         division: divisionSelect.value,
-                        level: levelSelect.value
+                        level: levelSelect.value,
+                        knownGamesOnly: isKnownGamesOnlyEnabled()
                     })
                 });
                 
@@ -567,6 +615,11 @@
         downloadBtn.addEventListener('click', () => {
             const source = sourceSelect.value;
             window.location.href = `${API_BASE}/api/download/csv?source=${encodeURIComponent(source)}`;
+        });
+
+        // Open bracket page
+        bracketBtn.addEventListener('click', () => {
+            window.location.href = `${API_BASE}/bracket.html`;
         });
 
         // Get CSS class for score
@@ -783,8 +836,10 @@
         // Initialize
         loadFilters();
         updateScrapeStatus(); // Check scrape status on page load
+        updateSourceSpecificControls();
         sourceSelect.addEventListener('change', async () => {
             resultsDiv.innerHTML = '';
+            updateSourceSpecificControls();
             await loadFilters();
             await updateScrapeStatus();
         });
