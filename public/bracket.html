@@ -326,7 +326,7 @@
             const columnWidth = 310;
             const rowHeight = 120;
             const specialVerticalOrder = ['14312', '14313', '14314', '14315'];
-            const invertIncomingFor = new Set(['14305', '14307', '14313', '14314']);
+            const invertIncomingFor = new Set(['14313', '14314']);
             const specialPaddingRows = 3;
             const width = (colKeys.length + 1) * columnWidth;
             const height = (maxRows + 1 + specialPaddingRows) * rowHeight;
@@ -353,16 +353,6 @@
             (function swapManualGamePositionsAlso() {
                 const aId = '14308';
                 const bId = '14306';
-                const a = position.get(aId);
-                const b = position.get(bId);
-                if (!a || !b) return;
-                position.set(aId, { ...b });
-                position.set(bId, { ...a });
-            })();
-
-            (function swapManualGamePositionsExtra() {
-                const aId = '14307';
-                const bId = '14305';
                 const a = position.get(aId);
                 const b = position.get(bId);
                 if (!a || !b) return;
