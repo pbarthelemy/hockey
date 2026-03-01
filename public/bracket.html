@@ -21,6 +21,11 @@
         .small { color: #666; font-size: 12px; }
         .links { margin-top: 8px; }
         .links a { color: #2d6cdf; text-decoration: none; }
+        .card h3 { margin: 0 0 10px 0; }
+        .agg-table { width: 100%; border-collapse: collapse; }
+        .agg-table th, .agg-table td { padding: 8px 10px; border-bottom: 1px solid #e5e7eb; font-size: 14px; }
+        .agg-table th { text-align: left; color: #4b5563; }
+        .agg-table td:last-child, .agg-table th:last-child { text-align: right; }
     </style>
 </head>
 <body>
@@ -52,6 +57,11 @@
             <div id="svgContainer"></div>
         </div>
 
+        <div class="card">
+            <h3>Aggregate chance to win game #14314</h3>
+            <div id="aggregateTableContainer"></div>
+        </div>
+
         <div class="links small">
             <a href="/">← Back to analyzer</a>
         </div>
@@ -69,6 +79,7 @@
         const downloadPngBtn = document.getElementById('downloadPngBtn');
         const statusEl = document.getElementById('status');
         const svgContainer = document.getElementById('svgContainer');
+        const aggregateTableContainer = document.getElementById('aggregateTableContainer');
 
         function setStatus(text, isError = false) {
             statusEl.textContent = text;
@@ -86,7 +97,179 @@
             return m ? m[1] : '';
         }
 
-        function buildBracket(games) {
+        function isNumericScore(value) {
+            return value !== null && value !== undefined && value !== '' && !Number.isNaN(Number(value));
+        }
+
+        function isKnownTeamName(teamName) {
+            const normalized = String(teamName || '').trim().toLowerCase();
+            return Boolean(normalized)
+                && !normalized.includes('gagnant')
+                && !normalized.includes('perdant')
+                && !normalized.includes('position');
+        }
+
+        function normalizeGameKey(gameId) {
+            const num = gameIdToNum(gameId);
+            return num || String(gameId || '').trim();
+        }
+
+        function getDisplayLineForGame(game, prediction) {
+            const hasHomeScore = isNumericScore(game.home_score);
+            const hasAwayScore = isNumericScore(game.away_score);
+            if (hasHomeScore && hasAwayScore) {
+                return {
+                    homeRight: String(game.home_score),
+                    awayRight: String(game.away_score)
+                };
+            }
+
+            if (prediction && Number.isFinite(Number(prediction.combined_home_win_prob))) {
+                const homeProb = Number(prediction.combined_home_win_prob);
+                const awayProb = Number(prediction.combined_away_win_prob);
+                return {
+                    homeRight: `${Math.round(homeProb)}%`,
+                    awayRight: `${Math.round(awayProb)}%`
+                };
+            }
+
+            return { homeRight: '', awayRight: '' };
+        }
+
+        function getLocationTag(locationValue) {
+            const normalized = String(locationValue || '').toUpperCase();
+            if (normalized.includes('VILLE MONT-ROYAL')) return '(VMR)';
+            if (normalized.includes('OUTREMONT')) return '(OUT)';
+            return '';
+        }
+
+        function isDiablesMroTeam(teamName) {
+            const normalized = String(teamName || '').toUpperCase();
+            return normalized.includes('DIABLES M.R.O.') || normalized.includes('DIABLES MRO');
+        }
+
+        function mergeDist(a, b) {
+            const out = { ...a };
+            Object.entries(b || {}).forEach(([team, prob]) => {
+                out[team] = (out[team] || 0) + prob;
+            });
+            return out;
+        }
+
+        function scaleDist(dist, factor) {
+            const out = {};
+            Object.entries(dist || {}).forEach(([team, prob]) => {
+                out[team] = prob * factor;
+            });
+            return out;
+        }
+
+        function buildAggregateWinChances(games, predictionsByGameId, targetGameId = '14314') {
+            const byId = new Map();
+            games.forEach((g, i) => {
+                const id = normalizeGameKey(g.game_id) || `x${i}`;
+                byId.set(id, g);
+            });
+
+            const memo = new Map();
+
+            function distFromSlot(teamName) {
+                return isKnownTeamName(teamName) ? { [teamName]: 1 } : {};
+            }
+
+            function computeGameDists(gameId, visiting = new Set()) {
+                if (memo.has(gameId)) return memo.get(gameId);
+                const game = byId.get(gameId);
+                if (!game) return { winner: {}, loser: {} };
+                if (visiting.has(gameId)) return { winner: {}, loser: {} };
+                visiting.add(gameId);
+
+                const homeRef = extractRef(game.home_team);
+                const awayRef = extractRef(game.away_team);
+
+                const homeSource = homeRef && byId.has(homeRef.id) ? computeGameDists(homeRef.id, visiting) : null;
+                const awaySource = awayRef && byId.has(awayRef.id) ? computeGameDists(awayRef.id, visiting) : null;
+
+                const homeDist = homeSource
+                    ? (homeRef.type === 'perdant' ? homeSource.loser : homeSource.winner)
+                    : distFromSlot(game.home_team);
+                const awayDist = awaySource
+                    ? (awayRef.type === 'perdant' ? awaySource.loser : awaySource.winner)
+                    : distFromSlot(game.away_team);
+
+                const hasHomeScore = isNumericScore(game.home_score);
+                const hasAwayScore = isNumericScore(game.away_score);
+
+                let winnerDist;
+                let loserDist;
+
+                if (hasHomeScore && hasAwayScore) {
+                    const hs = Number(game.home_score);
+                    const as = Number(game.away_score);
+                    if (hs > as) {
+                        winnerDist = distFromSlot(game.home_team);
+                        loserDist = distFromSlot(game.away_team);
+                    } else if (as > hs) {
+                        winnerDist = distFromSlot(game.away_team);
+                        loserDist = distFromSlot(game.home_team);
+                    }
+                }
+
+                if (!winnerDist || !loserDist) {
+                    const prediction = predictionsByGameId.get(normalizeGameKey(game.game_id));
+                    const homeWinProb = prediction && Number.isFinite(Number(prediction.combined_home_win_prob))
+                        ? Math.max(0, Math.min(1, Number(prediction.combined_home_win_prob) / 100))
+                        : 0.5;
+                    const awayWinProb = 1 - homeWinProb;
+
+                    winnerDist = mergeDist(scaleDist(homeDist, homeWinProb), scaleDist(awayDist, awayWinProb));
+                    loserDist = mergeDist(scaleDist(homeDist, awayWinProb), scaleDist(awayDist, homeWinProb));
+                }
+
+                visiting.delete(gameId);
+                const out = { winner: winnerDist, loser: loserDist };
+                memo.set(gameId, out);
+                return out;
+            }
+
+            const target = computeGameDists(normalizeGameKey(targetGameId));
+            const knownTeams = Array.from(new Set(
+                games.flatMap((g) => [g.home_team, g.away_team]).filter((name) => isKnownTeamName(name))
+            ));
+
+            return knownTeams.map((team) => ({
+                team,
+                probability: (target.winner[team] || 0) * 100
+            })).sort((a, b) => (b.probability - a.probability) || a.team.localeCompare(b.team));
+        }
+
+        function renderAggregateTable(games, predictionsByGameId) {
+            const rows = buildAggregateWinChances(games, predictionsByGameId, '14314');
+            if (!rows.length) {
+                aggregateTableContainer.innerHTML = '<div class="small">No team data available.</div>';
+                return;
+            }
+
+            const tableRows = rows.map((r) => (
+                `<tr><td>${r.team}</td><td>${r.probability.toFixed(1)}%</td></tr>`
+            )).join('');
+
+            aggregateTableContainer.innerHTML = `
+                <table class="agg-table">
+                    <thead>
+                        <tr>
+                            <th>Team</th>
+                            <th>Chance to win game #14314</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        ${tableRows}
+                    </tbody>
+                </table>
+            `;
+        }
+
+        function buildBracket(games, predictionsByGameId = new Map()) {
             const nodes = games.map((g, i) => {
                 const idNum = gameIdToNum(g.game_id) || `x${i}`;
                 const homeRef = extractRef(g.home_team);
@@ -137,7 +320,7 @@
             const columnWidth = 310;
             const rowHeight = 120;
             const specialVerticalOrder = ['14312', '14313', '14314', '14315'];
-            const invertIncomingFor = new Set(['14313', '14314']);
+            const invertIncomingFor = new Set(['14305', '14307', '14313', '14314']);
             const specialPaddingRows = 3;
             const width = (colKeys.length + 1) * columnWidth;
             const height = (maxRows + 1 + specialPaddingRows) * rowHeight;
@@ -150,6 +333,37 @@
                 });
             }
 
+            // Requested manual swap for two specific games.
+            (function swapManualGamePositions() {
+                const aId = '14308';
+                const bId = '14305';
+                const a = position.get(aId);
+                const b = position.get(bId);
+                if (!a || !b) return;
+                position.set(aId, { ...b });
+                position.set(bId, { ...a });
+            })();
+
+            (function swapManualGamePositionsAlso() {
+                const aId = '14308';
+                const bId = '14306';
+                const a = position.get(aId);
+                const b = position.get(bId);
+                if (!a || !b) return;
+                position.set(aId, { ...b });
+                position.set(bId, { ...a });
+            })();
+
+            (function swapManualGamePositionsExtra() {
+                const aId = '14307';
+                const bId = '14305';
+                const a = position.get(aId);
+                const b = position.get(bId);
+                if (!a || !b) return;
+                position.set(aId, { ...b });
+                position.set(bId, { ...a });
+            })();
+
             // Manual layout tweak for lower-final rounds so connectors do not run behind boxes.
             // Keep x by round, but move these games lower with fixed vertical order.
             const specialBaseRow = Math.max(0, maxRows - 2);
@@ -158,6 +372,27 @@
                 if (!p) return;
                 position.set(id, { x: p.x, y: 30 + (specialBaseRow + idx) * rowHeight });
             });
+
+            (function alignSpecificRows() {
+                const anchor = position.get('14311');
+                const target = position.get('14314');
+                if (!anchor || !target) return;
+                position.set('14314', { x: target.x, y: anchor.y });
+            })();
+
+            (function alignSpecificRowsMore() {
+                const anchor = position.get('14314');
+                const target = position.get('14315');
+                if (!anchor || !target) return;
+                position.set('14315', { x: target.x, y: anchor.y });
+            })();
+
+            (function alignSpecificRowsEvenMore() {
+                const anchor = position.get('14309');
+                const target = position.get('14313');
+                if (!anchor || !target) return;
+                position.set('14313', { x: target.x, y: anchor.y });
+            })();
 
             const palette = [
                 '#ffd6e7', '#cfe9ff', '#d6f5dd', '#ffe6c7', '#ead7ff', '#c9f6ff',
@@ -231,23 +466,61 @@
                 rect.setAttribute('stroke-width', '3');
                 svg.appendChild(rect);
 
-                const lines = [
-                    `${n.game.game_id || '#?'}  ${n.game.date || ''}`,
-                    `${n.game.home_team || ''} ${n.game.home_score ? '(' + n.game.home_score + ')' : ''}`,
-                    `${n.game.away_team || ''} ${n.game.away_score ? '(' + n.game.away_score + ')' : ''}`,
-                    `${n.game.location_name || ''}`
-                ];
+                const rightValues = getDisplayLineForGame(
+                    n.game,
+                    predictionsByGameId.get(String(n.game.game_id || '').trim())
+                );
 
-                lines.forEach((text, idx) => {
-                    const t = document.createElementNS(ns, 'text');
-                    t.setAttribute('x', p.x + 10);
-                    t.setAttribute('y', p.y + 18 + idx * 17);
-                    t.setAttribute('font-size', idx === 0 ? '11' : '12');
-                    t.setAttribute('font-family', 'Arial, sans-serif');
-                    t.setAttribute('fill', idx === 0 ? '#444' : '#1f2937');
-                    t.textContent = text.slice(0, 42);
-                    svg.appendChild(t);
-                });
+                const header = document.createElementNS(ns, 'text');
+                header.setAttribute('x', p.x + 10);
+                header.setAttribute('y', p.y + 18);
+                header.setAttribute('font-size', '11');
+                header.setAttribute('font-family', 'Arial, sans-serif');
+                header.setAttribute('fill', '#444');
+                const locationTag = getLocationTag(n.game.location_name || n.game.location);
+                const headerBase = `${n.game.game_id || '#?'}  ${n.game.date || ''}`;
+                header.textContent = `${headerBase}${locationTag ? ' ' + locationTag : ''}`.slice(0, 42);
+                svg.appendChild(header);
+
+                const homeLeft = document.createElementNS(ns, 'text');
+                homeLeft.setAttribute('x', p.x + 10);
+                homeLeft.setAttribute('y', p.y + 39);
+                homeLeft.setAttribute('font-size', '12');
+                homeLeft.setAttribute('font-family', 'Arial, sans-serif');
+                homeLeft.setAttribute('fill', '#1f2937');
+                if (isDiablesMroTeam(n.game.home_team)) homeLeft.setAttribute('font-weight', '700');
+                homeLeft.textContent = String(n.game.home_team || '').slice(0, 26);
+                svg.appendChild(homeLeft);
+
+                const homeRight = document.createElementNS(ns, 'text');
+                homeRight.setAttribute('x', p.x + 230);
+                homeRight.setAttribute('y', p.y + 39);
+                homeRight.setAttribute('font-size', '12');
+                homeRight.setAttribute('font-family', 'Arial, sans-serif');
+                homeRight.setAttribute('fill', '#1f2937');
+                homeRight.setAttribute('text-anchor', 'end');
+                homeRight.textContent = String(rightValues.homeRight || '').slice(0, 8);
+                svg.appendChild(homeRight);
+
+                const awayLeft = document.createElementNS(ns, 'text');
+                awayLeft.setAttribute('x', p.x + 10);
+                awayLeft.setAttribute('y', p.y + 58);
+                awayLeft.setAttribute('font-size', '12');
+                awayLeft.setAttribute('font-family', 'Arial, sans-serif');
+                awayLeft.setAttribute('fill', '#1f2937');
+                if (isDiablesMroTeam(n.game.away_team)) awayLeft.setAttribute('font-weight', '700');
+                awayLeft.textContent = String(n.game.away_team || '').slice(0, 26);
+                svg.appendChild(awayLeft);
+
+                const awayRight = document.createElementNS(ns, 'text');
+                awayRight.setAttribute('x', p.x + 230);
+                awayRight.setAttribute('y', p.y + 58);
+                awayRight.setAttribute('font-size', '12');
+                awayRight.setAttribute('font-family', 'Arial, sans-serif');
+                awayRight.setAttribute('fill', '#1f2937');
+                awayRight.setAttribute('text-anchor', 'end');
+                awayRight.textContent = String(rightValues.awayRight || '').slice(0, 8);
+                svg.appendChild(awayRight);
             }
 
             return svg;
@@ -278,18 +551,38 @@
                 level: levelEl.value
             });
 
-            const response = await fetch(`${API_BASE}/api/games?${query.toString()}`);
-            const data = await response.json();
-            if (!data.success) {
-                setStatus(data.error || 'Failed to load games', true);
+            const [gamesResponse, predictionsResponse] = await Promise.all([
+                fetch(`${API_BASE}/api/games?${query.toString()}`),
+                fetch(`${API_BASE}/api/predict`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        source: SOURCE,
+                        tournament: tournamentEl.value,
+                        division: divisionEl.value,
+                        level: levelEl.value
+                    })
+                })
+            ]);
+
+            const gamesData = await gamesResponse.json();
+            if (!gamesData.success) {
+                setStatus(gamesData.error || 'Failed to load games', true);
                 return;
             }
 
-            const svg = buildBracket(data.games || []);
+            const predictionsData = await predictionsResponse.json();
+            const predictions = predictionsData.success ? (predictionsData.predictions || []) : [];
+            const predictionsByGameId = new Map(
+                predictions.map((p) => [normalizeGameKey(p.game_id), p])
+            );
+
+            const svg = buildBracket(gamesData.games || [], predictionsByGameId);
             svg.id = 'tournamentSvg';
             svgContainer.innerHTML = '';
             svgContainer.appendChild(svg);
-            setStatus(`Rendered bracket with ${data.count} games.`);
+            renderAggregateTable(gamesData.games || [], predictionsByGameId);
+            setStatus(`Rendered bracket with ${gamesData.count} games.`);
         }
 
         function downloadSvg() {
