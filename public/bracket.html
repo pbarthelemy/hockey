@@ -115,6 +115,12 @@
         }
 
         function getDisplayLineForGame(game, prediction) {
+            const homeNamed = isKnownTeamName(game.home_team);
+            const awayNamed = isKnownTeamName(game.away_team);
+            if (!homeNamed || !awayNamed) {
+                return { homeRight: '', awayRight: '' };
+            }
+
             const hasHomeScore = isNumericScore(game.home_score);
             const hasAwayScore = isNumericScore(game.away_score);
             if (hasHomeScore && hasAwayScore) {
@@ -468,7 +474,7 @@
 
                 const rightValues = getDisplayLineForGame(
                     n.game,
-                    predictionsByGameId.get(String(n.game.game_id || '').trim())
+                    predictionsByGameId.get(normalizeGameKey(n.game.game_id))
                 );
 
                 const header = document.createElementNS(ns, 'text');
